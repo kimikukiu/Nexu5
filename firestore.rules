@@ -1,0 +1,163 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: /users/{userId}
+    // Document ID: Firebase Auth UID
+    // Fields:
+    //   - uid: string (required, immutable) - Firebase Auth UID
+    //   - email: string (required, format: email) - User's email address
+    //   - role: string (required, enum: ["admin", "user", "guest"]) - User's role
+    //   - subscriptionStatus: string (optional, enum: ["active", "inactive"]) - Subscription status
+    //   - accessToken: string (optional) - User's access token
+    //   - createdAt: timestamp (required, immutable) - When the profile was created
+    //
+    // Collection: /users/{userId}/messages/{messageId}
+    // Document ID: Unique ID
+    // Fields:
+    //   - id: string (required) - Message ID
+    //   - role: string (required, enum: ["user", "assistant", "system"]) - Message sender role
+    //   - content: string (required, size < 5000) - Message content
+    //   - timestamp: timestamp (required, immutable) - When the message was sent
+    //   - agentRole: string (optional) - The agent role used
+    //   - userId: string (required, immutable) - The user's UID
+    //
+    // Collection: /users/{userId}/softwares/{softwareId}
+    // Document ID: Unique ID
+    // Fields:
+    //   - id: string (required) - Software ID
+    //   - name: string (required, size < 100) - Software name
+    //   - source: string (required, size < 200) - Software source
+    //   - installedAt: timestamp (required, immutable) - When the software was installed
+    //   - status: string (required, enum: ["installed", "pending", "failed"]) - Installation status
+    //   - userId: string (required, immutable) - The user's UID
+    //
+    // Collection: /users/{userId}/logs/{logId}
+    // Document ID: Unique ID
+    // Fields:
+    //   - id: string (required) - Log ID
+    //   - message: string (required, size < 1000) - Log message
+    //   - type: string (required, enum: ["info", "error", "success", "warning"]) - Log type
+    //   - timestamp: timestamp (required, immutable) - When the log was created
+    //   - userId: string (required, immutable) - The user's UID
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() &&
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
+          (request.auth.token.email == "lacthichau39@gmail.com" && request.auth.token.email_verified == true));
+    }
+
+    function hasRequiredFields(fields) {
+      return request.resource.data.keys().hasAll(fields);
+    }
+
+    function hasOnlyAllowedFields(fields) {
+      return request.resource.data.keys().hasOnly(fields);
+    }
+
+    function isValidEmail(email) {
+      return email is string && email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
+    }
+
+    // ===============================================================
+    // Domain Validators
+    // ===============================================================
+
+    function isValidUser(data) {
+      return hasRequiredFields(['uid', 'email', 'role', 'createdAt']) &&
+             hasOnlyAllowedFields(['uid', 'email', 'role', 'subscriptionStatus', 'accessToken', 'createdAt']) &&
+             data.uid == request.auth.uid &&
+             data.email == request.auth.token.email &&
+             data.role in ['admin', 'user', 'guest'] &&
+             data.createdAt is timestamp;
+    }
+
+    function isValidMessage(data) {
+      return hasRequiredFields(['id', 'role', 'content', 'timestamp', 'userId']) &&
+             hasOnlyAllowedFields(['id', 'role', 'content', 'timestamp', 'agentRole', 'userId']) &&
+             data.role in ['user', 'assistant', 'system'] &&
+             data.content is string && data.content.size() < 5000 &&
+             data.timestamp is timestamp &&
+             data.userId == request.auth.uid;
+    }
+
+    function isValidSoftware(data) {
+      return hasRequiredFields(['id', 'name', 'source', 'installedAt', 'status', 'userId']) &&
+             hasOnlyAllowedFields(['id', 'name', 'source', 'installedAt', 'status', 'userId']) &&
+             data.name is string && data.name.size() < 100 &&
+             data.source is string && data.source.size() < 200 &&
+             data.installedAt is timestamp &&
+             data.status in ['installed', 'pending', 'failed'] &&
+             data.userId == request.auth.uid;
+    }
+
+    function isValidLog(data) {
+      return hasRequiredFields(['id', 'message', 'type', 'timestamp', 'userId']) &&
+             hasOnlyAllowedFields(['id', 'message', 'type', 'timestamp', 'userId']) &&
+             data.message is string && data.message.size() < 1000 &&
+             data.type in ['info', 'error', 'success', 'warning'] &&
+             data.timestamp is timestamp &&
+             data.userId == request.auth.uid;
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+
+    match /users/{userId} {
+      allow read: if isOwner(userId) || isAdmin();
+      allow create: if isOwner(userId) && isValidUser(request.resource.data) && (request.resource.data.role != 'admin' || isAdmin());
+      allow update: if isOwner(userId) && isValidUser(request.resource.data) && (request.resource.data.role == resource.data.role || isAdmin());
+      allow delete: if isAdmin();
+
+      match /messages/{messageId} {
+        allow read: if isOwner(userId) || isAdmin();
+        allow create: if isOwner(userId) && isValidMessage(request.resource.data);
+        allow update: if isOwner(userId) && isValidMessage(request.resource.data) && request.resource.data.timestamp == resource.data.timestamp;
+        allow delete: if isOwner(userId) || isAdmin();
+      }
+
+      match /softwares/{softwareId} {
+        allow read: if isOwner(userId) || isAdmin();
+        allow create: if isOwner(userId) && isValidSoftware(request.resource.data);
+        allow update: if isOwner(userId) && isValidSoftware(request.resource.data) && request.resource.data.installedAt == resource.data.installedAt;
+        allow delete: if isOwner(userId) || isAdmin();
+      }
+
+      match /logs/{logId} {
+        allow read: if isOwner(userId) || isAdmin();
+        allow create: if isOwner(userId) && isValidLog(request.resource.data);
+        allow update: if isOwner(userId) && isValidLog(request.resource.data) && request.resource.data.timestamp == resource.data.timestamp;
+        allow delete: if isOwner(userId) || isAdmin();
+      }
+
+      match /config/{configId} {
+        allow read: if isOwner(userId) || isAdmin();
+        allow create, update: if isOwner(userId) && isAuthenticated();
+        allow delete: if isAdmin();
+      }
+    }
+
+    match /{path=**} {
+      allow read, write: if false;
+    }
+  }
+}

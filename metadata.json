@@ -1,0 +1,9 @@
+{
+  "name": "Quantum Orchestrator",
+  "description": "Ultra-high density Quantum Intelligence Orchestrator interface powered by WormGPT Omega architecture.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone",
+    "geolocation"
+  ]
+}

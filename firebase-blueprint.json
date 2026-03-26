@@ -1,0 +1,77 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "User Profile",
+      "description": "Stores user authentication and subscription details.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "Firebase Auth UID" },
+        "email": { "type": "string", "format": "email" },
+        "role": { "type": "string", "enum": ["admin", "user", "guest"] },
+        "subscriptionStatus": { "type": "string", "enum": ["active", "inactive"] },
+        "accessToken": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "email", "role"]
+    },
+    "ChatMessage": {
+      "title": "Chat Message",
+      "description": "Stores individual chat messages for the GPT interface.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "role": { "type": "string", "enum": ["user", "assistant", "system"] },
+        "content": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "agentRole": { "type": "string" },
+        "userId": { "type": "string" }
+      },
+      "required": ["id", "role", "content", "timestamp", "userId"]
+    },
+    "SoftwareInstallation": {
+      "title": "Software Installation",
+      "description": "Stores details of software installed in the user's workspace.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "source": { "type": "string" },
+        "installedAt": { "type": "string", "format": "date-time" },
+        "status": { "type": "string", "enum": ["installed", "pending", "failed"] },
+        "userId": { "type": "string" }
+      },
+      "required": ["id", "name", "installedAt", "status", "userId"]
+    },
+    "SystemLog": {
+      "title": "System Log",
+      "description": "Stores terminal and system logs.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "message": { "type": "string" },
+        "type": { "type": "string", "enum": ["info", "error", "success", "warning"] },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "userId": { "type": "string" }
+      },
+      "required": ["id", "message", "type", "timestamp", "userId"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "User profile document."
+    },
+    "/users/{userId}/messages/{messageId}": {
+      "schema": "ChatMessage",
+      "description": "User's chat history."
+    },
+    "/users/{userId}/softwares/{softwareId}": {
+      "schema": "SoftwareInstallation",
+      "description": "User's installed software."
+    },
+    "/users/{userId}/logs/{logId}": {
+      "schema": "SystemLog",
+      "description": "User's system logs."
+    }
+  }
+}
