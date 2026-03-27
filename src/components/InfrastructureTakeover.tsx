@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Building2, Landmark, Coins, Database, Globe, Loader2, ShieldAlert, Zap, Cpu, Terminal as TerminalIcon, CheckCircle2, AlertTriangle, Radio, Target, Utensils, Hotel, Factory } from 'lucide-react';
+import { Building2, Landmark, Coins, Globe, Terminal as TerminalIcon, CheckCircle2, Radio, Utensils, Factory } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
 interface InfrastructureTakeoverProps {

@@ -18,7 +18,7 @@ const Extractor: React.FC<ExtractorProps> = ({ addLog, target, setTarget }) => {
     const saved = localStorage.getItem('osint_history');
     return saved ? JSON.parse(saved) : [];
   });
-  const taskQueue = useRef(new AITaskQueue(import.meta.env.VITE_GEMINI_API_KEY || ''));
+  const taskQueue = useRef(new AITaskQueue(''));
 
   const detectTargetType = (input: string) => {
     if (!input || input === 'NONE') return 'UNKNOWN';

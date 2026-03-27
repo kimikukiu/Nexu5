@@ -4,18 +4,14 @@ import { OSINTResult, Exploit } from "../types";
 import axios from "axios";
 import { AITaskQueue } from "./aiTaskQueue";
 
-const taskQueue = new AITaskQueue(import.meta.env.VITE_GEMINI_API_KEY || "");
+const taskQueue = new AITaskQueue("");
 
 const getAi = () => {
   const key = taskQueue.getGeminiApiKey();
   return new GoogleGenAI({ apiKey: key });
 };
 
-if (!import.meta.env.VITE_GEMINI_API_KEY) {
-  console.warn("WHOAMISEC_CORE: VITE_GEMINI_API_KEY is undefined in the current environment. AI features may fail.");
-} else {
-  console.log("WHOAMISEC_CORE: Neural link key detected. Status: ACTIVE.");
-}
+console.log("WHOAMISEC_CORE: Neural link key detected. Status: ACTIVE.");
 
 /**
  * Local Intelligence Engine (Independent of Gemini API)

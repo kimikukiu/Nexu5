@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Tv, Youtube, Radio, Satellite, ShieldAlert, Zap, Cpu, Terminal as TerminalIcon, CheckCircle2, AlertTriangle, Globe, Loader2, Video, MessageSquare, Signal, Music, Mic, Ghost } from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
-import { GoogleGenAI } from "@google/genai";
+import { Tv, Youtube, Radio, Satellite, Zap, Cpu, Globe, Loader2, Video, Signal, Music, Ghost } from 'lucide-react';
+import { motion } from 'motion/react';
 
 interface MediaCommsTakeoverProps {
   addLog: (msg: string, level?: 'info' | 'success' | 'warning' | 'error' | 'critical') => void;

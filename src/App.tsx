@@ -355,7 +355,7 @@ export default function App() {
         {!isMaximized && activeTab !== AppTab.WHOAMISEC_GPT && (
           <header className="flex-none flex items-center justify-between mb-2 border-b border-[#1a1a1a] pb-2 px-4 md:px-6 pt-2 bg-black/40 backdrop-blur-md z-40">
             <div className="flex flex-col">
-              <h1 className="text-sm font-black tracking-widest text-white uppercase italic">Quantum Orchestrator v3.1</h1>
+              <h1 className="text-sm font-black tracking-widest text-white uppercase italic">WHOAMISec Pro Army v5.0</h1>
               <p className="text-[8px] text-emerald-500 tracking-[0.3em] uppercase">WormGPT Omega Neural Mesh</p>
             </div>
             <div className="flex items-center gap-4">

@@ -23,15 +23,13 @@ export class AITaskQueue {
     const savedOpenAI = localStorage.getItem('OPENAI_API_KEY');
     const savedGemini = localStorage.getItem('GEMINI_API_KEY');
     
-    // Prefer OpenRouter > Anthropic > DeepSeek > OpenAI > Gemini > passed in key > process.env.GEMINI_API_KEY
+    // Prefer OpenRouter > Anthropic > DeepSeek > OpenAI > Gemini > passed in key
     const bestKey = savedOpenRouter || 
                     savedAnthropic || 
                     savedDeepSeek || 
                     savedOpenAI || 
                     savedGemini || 
                     passedKey || 
-                    (process.env.GEMINI_API_KEY as string) ||
-                    (import.meta.env.VITE_GEMINI_API_KEY as string) || 
                     "";
     
     const source = savedOpenRouter ? 'localStorage:OpenRouter' :
@@ -40,8 +38,6 @@ export class AITaskQueue {
                    savedOpenAI ? 'localStorage:OpenAI' :
                    savedGemini ? 'localStorage:Gemini' :
                    passedKey ? 'Constructor/Passed Arg' :
-                   process.env.GEMINI_API_KEY ? 'process.env.GEMINI_API_KEY' :
-                   import.meta.env.VITE_GEMINI_API_KEY ? 'import.meta.env.VITE_GEMINI_API_KEY' :
                    'NONE';
 
     console.log(`[AI CORE] Initializing with key source: ${source}`);
@@ -57,7 +53,7 @@ export class AITaskQueue {
     const saved = localStorage.getItem('GEMINI_API_KEY');
     if (saved) return saved;
     
-    return process.env.GEMINI_API_KEY || (import.meta as any).env?.VITE_GEMINI_API_KEY || this.apiKey;
+    return this.apiKey;
   }
 
   public getApiKey(): string {
@@ -74,8 +70,6 @@ export class AITaskQueue {
            savedOpenAI || 
            savedGemini || 
            this.apiKey || 
-           (process.env.GEMINI_API_KEY as string) ||
-           (import.meta.env.VITE_GEMINI_API_KEY as string) || 
            "";
   }
 

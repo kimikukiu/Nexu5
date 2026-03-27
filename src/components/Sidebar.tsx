@@ -69,8 +69,8 @@ const Sidebar: React.FC<SidebarProps> = ({
           <i className={`fas ${isAttacking ? 'fa-bolt-lightning' : 'fa-skull'} text-black text-sm`}></i>
         </div>
         <div className="hidden md:block flex flex-col">
-          <span className="font-black text-[10px] tracking-tighter text-white uppercase italic leading-none">Quantum</span>
-          <span className={`text-[7px] font-black uppercase tracking-widest ${isAttacking ? 'text-fuchsia-500' : 'text-emerald-500'}`}>ORCHESTRATOR_V3.1</span>
+          <span className="font-black text-[10px] tracking-tighter text-white uppercase italic leading-none">WHOAMISec</span>
+          <span className={`text-[7px] font-black uppercase tracking-widest ${isAttacking ? 'text-fuchsia-500' : 'text-emerald-500'}`}>PRO_ARMY_V5.0</span>
         </div>
       </div>
 

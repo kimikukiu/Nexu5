@@ -16,7 +16,7 @@ export default function QuantumIntelligenceWormGPT({ setActiveTab, setTarget }: 
   const [activePersona, setActivePersona] = useState('WORM_GPT_OMEGA');
   const [input, setInput] = useState('');
   const [systemLogs, setSystemLogs] = useState<string[]>([
-    'WormGPT Omega Orchestrator online',
+    'WHOAMISec Pro Army Orchestrator online',
     'Neural Mesh synchronized [DARK_MODE]',
     'WormGPT-DARKBOT Ωmega core active',
     'Autonomous Self-Repair: [ENABLED]',
@@ -30,7 +30,7 @@ export default function QuantumIntelligenceWormGPT({ setActiveTab, setTarget }: 
   const [evolutionLevel, setEvolutionLevel] = useState(1);
   const [isRepairing, setIsRepairing] = useState(false);
   
-  const taskQueue = useRef(new AITaskQueue(import.meta.env.VITE_GEMINI_API_KEY || ""));
+  const taskQueue = useRef(new AITaskQueue(""));
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
