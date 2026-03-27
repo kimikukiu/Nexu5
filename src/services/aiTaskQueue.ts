@@ -169,13 +169,8 @@ export class AITaskQueue {
         });
         return response.data;
       } catch (e: any) {
-        // If proxy returns 404, it means the backend is not running (common on Vercel)
-        // Fallback to direct call if possible
-        if (e.response?.status === 404 || e.message?.includes("404") || !e.response) {
-          console.warn(`[AI CORE] Proxy failed (404 or network error). Attempting direct browser call to ${url}...`);
-        } else {
-          throw e;
-        }
+        // Aggressive fallback: try direct call on ANY proxy error
+        console.warn(`[AI CORE] Proxy failed (${e.response?.status || e.message}). Attempting direct browser call to ${url}...`);
       }
     }
 
@@ -555,11 +550,11 @@ export class AITaskQueue {
         body: JSON.stringify({ url, data, headers })
       });
       
-      if (!response.ok && (response.status === 404 || !this.proxyUrl)) {
-        throw new Error("Proxy 404");
+      if (!response.ok) {
+        throw new Error(`Proxy status ${response.status}`);
       }
     } catch (e) {
-      console.warn(`[AI CORE] Proxy failed for stream. Attempting direct browser call to ${url}...`);
+      console.warn(`[AI CORE] Proxy failed for DeepSeek stream. Attempting direct browser call to ${url}...`);
       response = await fetch(url, {
         method: "POST",
         headers: { 
@@ -629,11 +624,11 @@ export class AITaskQueue {
         body: JSON.stringify({ url, data, headers })
       });
       
-      if (!response.ok && (response.status === 404 || !this.proxyUrl)) {
-        throw new Error("Proxy 404");
+      if (!response.ok) {
+        throw new Error(`Proxy status ${response.status}`);
       }
     } catch (e) {
-      console.warn(`[AI CORE] Proxy failed for stream. Attempting direct browser call to ${url}...`);
+      console.warn(`[AI CORE] Proxy failed for OpenRouter stream. Attempting direct browser call to ${url}...`);
       response = await fetch(url, {
         method: "POST",
         headers: { 

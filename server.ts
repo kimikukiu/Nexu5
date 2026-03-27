@@ -1,5 +1,5 @@
 import express from "express";
-import { createServer as createViteServer } from "vite";
+// import { createServer as createViteServer } from "vite"; // Moved to dynamic import for faster startup
 import path from "path";
 import axios from "axios";
 import * as cheerio from "cheerio";
@@ -7,13 +7,39 @@ import fs from "fs";
 
 const KEYS_FILE = path.join(process.cwd(), "api_keys.json");
 
-async function startServer() {
-  const app = express();
-  const PORT = 3000;
+const app = express();
+const PORT = 3000;
 
-  app.use(express.json());
+app.use(express.json());
 
-  app.get("/api/config/keys", (req, res) => {
+let vitePromise: Promise<any> | null = null;
+let viteInstance: any = null;
+
+async function setupVite() {
+  if (process.env.NODE_ENV !== "production") {
+    try {
+      console.log("[SYSTEM] Initializing Vite middleware in background...");
+      const { createServer } = await import("vite");
+      vitePromise = createServer({
+        server: { middlewareMode: true },
+        appType: "spa",
+      });
+      viteInstance = await vitePromise;
+      console.log("[SYSTEM] Vite middleware ready.");
+    } catch (error) {
+      console.error("[SYSTEM] Failed to initialize Vite:", error);
+    }
+  } else {
+    const distPath = path.join(process.cwd(), 'dist');
+    app.use(express.static(distPath));
+    app.get('*', (req, res) => {
+      res.sendFile(path.join(distPath, 'index.html'));
+    });
+  }
+}
+
+// API routes go here
+app.get("/api/config/keys", (req, res) => {
     try {
       if (fs.existsSync(KEYS_FILE)) {
         const data = fs.readFileSync(KEYS_FILE, "utf-8");
@@ -166,26 +192,31 @@ async function startServer() {
     res.json({ words });
   });
 
-  // Vite middleware for development
-  if (process.env.NODE_ENV !== "production") {
-    const vite = await createViteServer({
-      server: { middlewareMode: true },
-      appType: "spa",
-    });
-    app.use(vite.middlewares);
-  } else {
-    const distPath = path.join(process.cwd(), 'dist');
-    app.use(express.static(distPath));
-    app.get('*', (req, res) => {
-      res.sendFile(path.join(distPath, 'index.html'));
+  // Middleware to wait for Vite in development
+  app.use(async (req, res, next) => {
+    if (process.env.NODE_ENV !== "production") {
+      if (viteInstance) {
+        return viteInstance.middlewares(req, res, next);
+      }
+      if (vitePromise) {
+        try {
+          const vite = await vitePromise;
+          viteInstance = vite;
+          return vite.middlewares(req, res, next);
+        } catch (error) {
+          return next(error);
+        }
+      }
+    }
+    next();
+  });
+
+  if (process.env.NODE_ENV !== "production" || !process.env.VERCEL) {
+    app.listen(PORT, "0.0.0.0", () => {
+      console.log(`[SYSTEM] WHOAMISec Pro Army Core active on http://localhost:${PORT}`);
     });
   }
 
-  app.listen(PORT, "0.0.0.0", () => {
-    console.log(`Server running on http://localhost:${PORT}`);
-  });
-}
+  setupVite();
 
-if (process.env.NODE_ENV !== "production" || !process.env.VERCEL) {
-  startServer();
-}
+export default app;
