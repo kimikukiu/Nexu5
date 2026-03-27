@@ -19,7 +19,7 @@ console.log("WHOAMISEC_CORE: Neural link key detected. Status: ACTIVE.");
  */
 export const localIntelligence = {
   async search(query: string) {
-    const proxyUrl = (import.meta.env.VITE_APP_URL as string || "") + "/api/search";
+    const proxyUrl = (import.meta.env.VITE_APP_URL as string || window.location.origin) + "/api/search";
     try {
       const response = await axios.get(`${proxyUrl}?q=${encodeURIComponent(query)}`);
       return response.data.results;
@@ -30,7 +30,7 @@ export const localIntelligence = {
   },
 
   async scrape(url: string) {
-    const proxyUrl = (import.meta.env.VITE_APP_URL as string || "") + "/api/scrape";
+    const proxyUrl = (import.meta.env.VITE_APP_URL as string || window.location.origin) + "/api/scrape";
     try {
       const response = await axios.get(`${proxyUrl}?url=${encodeURIComponent(url)}`);
       return response.data.content;
@@ -41,7 +41,7 @@ export const localIntelligence = {
   },
 
   async process(message: string, context: string) {
-    const proxyUrl = (import.meta.env.VITE_APP_URL as string || "") + "/api/local-chat";
+    const proxyUrl = (import.meta.env.VITE_APP_URL as string || window.location.origin) + "/api/local-chat";
     try {
       const response = await axios.post(proxyUrl, { message, context });
       return response.data.text;

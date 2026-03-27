@@ -7,7 +7,7 @@ export class AITaskQueue {
   private apiKey: string = "";
   private activeProvider: AIProvider = 'google';
   private activeModel: string = "gemini-3-flash-preview";
-  private proxyUrl: string = (import.meta.env.VITE_APP_URL as string || "") + "/api/proxy";
+  private proxyUrl: string = (import.meta.env.VITE_APP_URL as string || window.location.origin) + "/api/proxy";
   private subscriptionStatus: string = "ENTERPRISE_ULTRA [3_YEARS]";
   private quotaRemaining: string = "UNLIMITED";
   private proxyNodes: number = 842119;
@@ -157,6 +157,41 @@ export class AITaskQueue {
     console.log(`[AI CORE] API Key updated. Provider: ${this.activeProvider}. Key (truncated): ${this.apiKey.substring(0, 8)}...`);
   }
 
+  private async callWithProxyFallback(url: string, data: any, headers: any = {}): Promise<any> {
+    const useProxy = !!this.proxyUrl;
+    
+    if (useProxy) {
+      try {
+        const response = await axios.post(this.proxyUrl, {
+          url,
+          data,
+          headers
+        });
+        return response.data;
+      } catch (e: any) {
+        // If proxy returns 404, it means the backend is not running (common on Vercel)
+        // Fallback to direct call if possible
+        if (e.response?.status === 404 || e.message?.includes("404") || !e.response) {
+          console.warn(`[AI CORE] Proxy failed (404 or network error). Attempting direct browser call to ${url}...`);
+        } else {
+          throw e;
+        }
+      }
+    }
+
+    // Direct browser call
+    // Note: Some providers might block this due to CORS, but OpenRouter and others often allow it if headers are correct
+    const directHeaders = { ...headers };
+    
+    // Anthropic requires a special header for direct browser access
+    if (url.includes("anthropic.com")) {
+      directHeaders["anthropic-dangerous-direct-browser-access"] = "true";
+    }
+
+    const response = await axios.post(url, data, { headers: directHeaders });
+    return response.data;
+  }
+
   private async callOpenRouter(prompt: string, files?: {mimeType: string, data: string, name: string}[]): Promise<string> {
     const baseUrl = localStorage.getItem('OPENROUTER_BASE_URL') || "https://openrouter.ai/api/v1";
     
@@ -185,22 +220,22 @@ export class AITaskQueue {
       });
     }
 
-    const response = await axios.post(this.proxyUrl, {
-      url: `${baseUrl}/chat/completions`,
-      data: {
-        model: this.activeModel,
-        messages: [
-          { role: "system", content: this.systemInstruction },
-          { role: "user", content: content }
-        ]
-      },
-      headers: { 
-        "Authorization": `Bearer ${this.apiKey}`,
-        "HTTP-Referer": window.location.origin,
-        "X-Title": "Quantum Intelligence Ultra"
-      }
-    });
-    return response.data.choices[0].message.content;
+    const data = {
+      model: this.activeModel,
+      messages: [
+        { role: "system", content: this.systemInstruction },
+        { role: "user", content: content }
+      ]
+    };
+
+    const headers = { 
+      "Authorization": `Bearer ${this.apiKey}`,
+      "HTTP-Referer": window.location.origin,
+      "X-Title": "Quantum Intelligence Ultra"
+    };
+
+    const responseData = await this.callWithProxyFallback(`${baseUrl}/chat/completions`, data, headers);
+    return responseData.choices[0].message.content;
   }
 
   public async executeTask(subject: string, prompt: string, files?: {mimeType: string, data: string, name: string}[]): Promise<string> {
@@ -400,23 +435,18 @@ export class AITaskQueue {
       });
     }
 
-    try {
-      const response = await axios.post(this.proxyUrl, {
-        url: url,
-        data: {
-          model: this.activeModel,
-          messages: [
-            { role: "system", content: this.systemInstruction },
-            { role: "user", content: content }
-          ]
-        },
-        headers: { "Authorization": `Bearer ${this.apiKey}` }
-      });
-      return response.data.choices[0].message.content;
-    } catch (error: any) {
-      console.error(`[AI CORE] callOpenAI: Request failed to ${url}`, error);
-      throw error;
-    }
+    const data = {
+      model: this.activeModel,
+      messages: [
+        { role: "system", content: this.systemInstruction },
+        { role: "user", content: content }
+      ]
+    };
+
+    const headers = { "Authorization": `Bearer ${this.apiKey}` };
+    
+    const responseData = await this.callWithProxyFallback(url, data, headers);
+    return responseData.choices[0].message.content;
   }
 
   private async callAnthropic(prompt: string, files?: {mimeType: string, data: string, name: string}[]): Promise<string> {
@@ -449,22 +479,22 @@ export class AITaskQueue {
       });
     }
 
-    const response = await axios.post(this.proxyUrl, {
-      url: "https://api.anthropic.com/v1/messages",
-      data: {
-        model: this.activeModel,
-        max_tokens: 4000,
-        system: this.systemInstruction,
-        messages: [{ role: "user", content: content }]
-      },
-      headers: { 
-        "x-api-key": this.apiKey,
-        "anthropic-version": "2023-06-01",
-        "content-type": "application/json",
-        "anthropic-dangerous-direct-browser-access": "true"
-      }
-    });
-    return response.data.content[0].text;
+    const data = {
+      model: this.activeModel,
+      max_tokens: 4000,
+      system: this.systemInstruction,
+      messages: [{ role: "user", content: content }]
+    };
+
+    const headers = { 
+      "x-api-key": this.apiKey,
+      "anthropic-version": "2023-06-01",
+      "content-type": "application/json",
+      "anthropic-dangerous-direct-browser-access": "true"
+    };
+
+    const responseData = await this.callWithProxyFallback("https://api.anthropic.com/v1/messages", data, headers);
+    return responseData.content[0].text;
   }
   
   private async callDeepSeek(prompt: string, files?: {mimeType: string, data: string, name: string}[]): Promise<string> {
@@ -490,43 +520,59 @@ export class AITaskQueue {
       });
     }
 
-    const response = await axios.post(this.proxyUrl, {
-      url: `${baseUrl}/chat/completions`,
-      data: {
-        model: this.activeModel,
-        messages: [
-          { role: "system", content: this.systemInstruction },
-          { role: "user", content: finalPrompt }
-        ]
-      },
-      headers: { "Authorization": `Bearer ${this.apiKey}` }
-    });
-    return response.data.choices[0].message.content;
+    const data = {
+      model: this.activeModel,
+      messages: [
+        { role: "system", content: this.systemInstruction },
+        { role: "user", content: finalPrompt }
+      ]
+    };
+
+    const headers = { "Authorization": `Bearer ${this.apiKey}` };
+
+    const responseData = await this.callWithProxyFallback(`${baseUrl}/chat/completions`, data, headers);
+    return responseData.choices[0].message.content;
   }
 
   private async callDeepSeekStream(prompt: string, onChunk: (chunk: string) => void): Promise<void> {
     const baseUrl = localStorage.getItem('DEEPSEEK_BASE_URL') || "https://api.deepseek.com/v1";
-    
-    const response = await fetch(this.proxyUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        url: `${baseUrl}/chat/completions`,
-        data: {
-          model: this.activeModel,
-          messages: [
-            { role: "system", content: this.systemInstruction },
-            { role: "user", content: prompt }
-          ],
-          stream: true
+    const url = `${baseUrl}/chat/completions`;
+    const data = {
+      model: this.activeModel,
+      messages: [
+        { role: "system", content: this.systemInstruction },
+        { role: "user", content: prompt }
+      ],
+      stream: true
+    };
+    const headers = { "Authorization": `Bearer ${this.apiKey}` };
+
+    let response: Response;
+    try {
+      response = await fetch(this.proxyUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url, data, headers })
+      });
+      
+      if (!response.ok && (response.status === 404 || !this.proxyUrl)) {
+        throw new Error("Proxy 404");
+      }
+    } catch (e) {
+      console.warn(`[AI CORE] Proxy failed for stream. Attempting direct browser call to ${url}...`);
+      response = await fetch(url, {
+        method: "POST",
+        headers: { 
+          "Content-Type": "application/json",
+          ...headers
         },
-        headers: { "Authorization": `Bearer ${this.apiKey}` }
-      })
-    });
+        body: JSON.stringify(data)
+      });
+    }
 
     if (!response.ok) {
       const errText = await response.text();
-      throw new Error(`Proxy error: ${response.status} ${errText}`);
+      throw new Error(`API error: ${response.status} ${errText}`);
     }
 
     if (!response.body) throw new Error("No response body");
@@ -560,31 +606,47 @@ export class AITaskQueue {
 
   private async callOpenRouterStream(prompt: string, onChunk: (chunk: string) => void): Promise<void> {
     const baseUrl = localStorage.getItem('OPENROUTER_BASE_URL') || "https://openrouter.ai/api/v1";
-    
-    const response = await fetch(this.proxyUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        url: `${baseUrl}/chat/completions`,
-        data: {
-          model: this.activeModel,
-          messages: [
-            { role: "system", content: this.systemInstruction },
-            { role: "user", content: prompt }
-          ],
-          stream: true
-        },
+    const url = `${baseUrl}/chat/completions`;
+    const data = {
+      model: this.activeModel,
+      messages: [
+        { role: "system", content: this.systemInstruction },
+        { role: "user", content: prompt }
+      ],
+      stream: true
+    };
+    const headers = { 
+      "Authorization": `Bearer ${this.apiKey}`,
+      "HTTP-Referer": window.location.origin,
+      "X-Title": "WormGPT Omega AI"
+    };
+
+    let response: Response;
+    try {
+      response = await fetch(this.proxyUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url, data, headers })
+      });
+      
+      if (!response.ok && (response.status === 404 || !this.proxyUrl)) {
+        throw new Error("Proxy 404");
+      }
+    } catch (e) {
+      console.warn(`[AI CORE] Proxy failed for stream. Attempting direct browser call to ${url}...`);
+      response = await fetch(url, {
+        method: "POST",
         headers: { 
-          "Authorization": `Bearer ${this.apiKey}`,
-          "HTTP-Referer": window.location.origin,
-          "X-Title": "WormGPT Omega AI"
-        }
-      })
-    });
+          "Content-Type": "application/json",
+          ...headers
+        },
+        body: JSON.stringify(data)
+      });
+    }
 
     if (!response.ok) {
       const errText = await response.text();
-      throw new Error(`Proxy error: ${response.status} ${errText}`);
+      throw new Error(`API error: ${response.status} ${errText}`);
     }
 
     if (!response.body) throw new Error("No response body");
@@ -618,11 +680,11 @@ export class AITaskQueue {
 
   public async executeTaskStream(subject: string, prompt: string, onChunk: (chunk: string) => void): Promise<void> {
     const providers = [];
-    if (localStorage.getItem('OPENROUTER_API_KEY')) providers.push('openrouter');
-    if (localStorage.getItem('ANTHROPIC_API_KEY')) providers.push('anthropic');
-    if (localStorage.getItem('DEEPSEEK_API_KEY')) providers.push('deepseek');
-    if (localStorage.getItem('OPENAI_API_KEY')) providers.push('openai');
-    if (localStorage.getItem('GEMINI_API_KEY')) providers.push('google');
+    if (localStorage.getItem('OPENROUTER_API_KEY') || import.meta.env.VITE_OPENROUTER_API_KEY) providers.push('openrouter');
+    if (localStorage.getItem('ANTHROPIC_API_KEY') || import.meta.env.VITE_ANTHROPIC_API_KEY) providers.push('anthropic');
+    if (localStorage.getItem('DEEPSEEK_API_KEY') || import.meta.env.VITE_DEEPSEEK_API_KEY) providers.push('deepseek');
+    if (localStorage.getItem('OPENAI_API_KEY') || import.meta.env.VITE_OPENAI_API_KEY) providers.push('openai');
+    if (localStorage.getItem('GEMINI_API_KEY') || import.meta.env.VITE_GEMINI_API_KEY) providers.push('google');
 
     for (const provider of providers) {
       try {
@@ -721,17 +783,17 @@ export class AITaskQueue {
       });
     }
 
-    const response = await axios.post(this.proxyUrl, {
-      url: "https://api.groq.com/openai/v1/chat/completions",
-      data: {
-        model: this.activeModel,
-        messages: [
-          { role: "system", content: this.systemInstruction },
-          { role: "user", content: finalPrompt }
-        ]
-      },
-      headers: { "Authorization": `Bearer ${this.apiKey}` }
-    });
-    return response.data.choices[0].message.content;
+    const data = {
+      model: this.activeModel,
+      messages: [
+        { role: "system", content: this.systemInstruction },
+        { role: "user", content: finalPrompt }
+      ]
+    };
+
+    const headers = { "Authorization": `Bearer ${this.apiKey}` };
+
+    const responseData = await this.callWithProxyFallback("https://api.groq.com/openai/v1/chat/completions", data, headers);
+    return responseData.choices[0].message.content;
   }
 }
