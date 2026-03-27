@@ -17,11 +17,11 @@ export class AITaskQueue {
   }
 
   private initializeKey(passedKey?: string) {
-    const savedOpenRouter = localStorage.getItem('OPENROUTER_API_KEY');
-    const savedAnthropic = localStorage.getItem('ANTHROPIC_API_KEY');
-    const savedDeepSeek = localStorage.getItem('DEEPSEEK_API_KEY');
-    const savedOpenAI = localStorage.getItem('OPENAI_API_KEY');
-    const savedGemini = localStorage.getItem('GEMINI_API_KEY');
+    const savedOpenRouter = localStorage.getItem('OPENROUTER_API_KEY') || (import.meta.env.VITE_OPENROUTER_API_KEY as string);
+    const savedAnthropic = localStorage.getItem('ANTHROPIC_API_KEY') || (import.meta.env.VITE_ANTHROPIC_API_KEY as string);
+    const savedDeepSeek = localStorage.getItem('DEEPSEEK_API_KEY') || (import.meta.env.VITE_DEEPSEEK_API_KEY as string);
+    const savedOpenAI = localStorage.getItem('OPENAI_API_KEY') || (import.meta.env.VITE_OPENAI_API_KEY as string);
+    const savedGemini = localStorage.getItem('GEMINI_API_KEY') || (import.meta.env.VITE_GEMINI_API_KEY as string);
     
     // Prefer OpenRouter > Anthropic > DeepSeek > OpenAI > Gemini > passed in key
     const bestKey = savedOpenRouter || 
@@ -32,11 +32,11 @@ export class AITaskQueue {
                     passedKey || 
                     "";
     
-    const source = savedOpenRouter ? 'localStorage:OpenRouter' :
-                   savedAnthropic ? 'localStorage:Anthropic' :
-                   savedDeepSeek ? 'localStorage:DeepSeek' :
-                   savedOpenAI ? 'localStorage:OpenAI' :
-                   savedGemini ? 'localStorage:Gemini' :
+    const source = savedOpenRouter ? 'OpenRouter' :
+                   savedAnthropic ? 'Anthropic' :
+                   savedDeepSeek ? 'DeepSeek' :
+                   savedOpenAI ? 'OpenAI' :
+                   savedGemini ? 'Gemini' :
                    passedKey ? 'Constructor/Passed Arg' :
                    'NONE';
 
@@ -50,19 +50,19 @@ export class AITaskQueue {
   }
 
   public getGeminiApiKey(): string {
-    const saved = localStorage.getItem('GEMINI_API_KEY');
+    const saved = localStorage.getItem('GEMINI_API_KEY') || (import.meta.env.VITE_GEMINI_API_KEY as string);
     if (saved) return saved;
     
     return this.apiKey;
   }
 
   public getApiKey(): string {
-    // Re-check localStorage to ensure we have the latest
-    const savedOpenRouter = localStorage.getItem('OPENROUTER_API_KEY');
-    const savedAnthropic = localStorage.getItem('ANTHROPIC_API_KEY');
-    const savedDeepSeek = localStorage.getItem('DEEPSEEK_API_KEY');
-    const savedOpenAI = localStorage.getItem('OPENAI_API_KEY');
-    const savedGemini = localStorage.getItem('GEMINI_API_KEY');
+    // Re-check sources to ensure we have the latest
+    const savedOpenRouter = localStorage.getItem('OPENROUTER_API_KEY') || (import.meta.env.VITE_OPENROUTER_API_KEY as string);
+    const savedAnthropic = localStorage.getItem('ANTHROPIC_API_KEY') || (import.meta.env.VITE_ANTHROPIC_API_KEY as string);
+    const savedDeepSeek = localStorage.getItem('DEEPSEEK_API_KEY') || (import.meta.env.VITE_DEEPSEEK_API_KEY as string);
+    const savedOpenAI = localStorage.getItem('OPENAI_API_KEY') || (import.meta.env.VITE_OPENAI_API_KEY as string);
+    const savedGemini = localStorage.getItem('GEMINI_API_KEY') || (import.meta.env.VITE_GEMINI_API_KEY as string);
 
     return savedOpenRouter || 
            savedAnthropic || 
@@ -103,12 +103,12 @@ export class AITaskQueue {
     const oldProvider = this.activeProvider;
     const oldModel = this.activeModel;
     
-    // Check localStorage for preferred provider first
-    const savedDeepSeek = localStorage.getItem('DEEPSEEK_API_KEY');
-    const savedAnthropic = localStorage.getItem('ANTHROPIC_API_KEY');
-    const savedOpenAI = localStorage.getItem('OPENAI_API_KEY');
-    const savedGemini = localStorage.getItem('GEMINI_API_KEY');
-    const savedOpenRouter = localStorage.getItem('OPENROUTER_API_KEY');
+    // Check sources for preferred provider first
+    const savedDeepSeek = localStorage.getItem('DEEPSEEK_API_KEY') || (import.meta.env.VITE_DEEPSEEK_API_KEY as string);
+    const savedAnthropic = localStorage.getItem('ANTHROPIC_API_KEY') || (import.meta.env.VITE_ANTHROPIC_API_KEY as string);
+    const savedOpenAI = localStorage.getItem('OPENAI_API_KEY') || (import.meta.env.VITE_OPENAI_API_KEY as string);
+    const savedGemini = localStorage.getItem('GEMINI_API_KEY') || (import.meta.env.VITE_GEMINI_API_KEY as string);
+    const savedOpenRouter = localStorage.getItem('OPENROUTER_API_KEY') || (import.meta.env.VITE_OPENROUTER_API_KEY as string);
 
     // Prioritize OpenRouter if available
     if (savedOpenRouter && this.apiKey === savedOpenRouter) {
@@ -211,7 +211,7 @@ export class AITaskQueue {
     }
     
     if (prompt.includes('WORM_GPT_OMEGA')) {
-      const savedOpenRouter = localStorage.getItem('OPENROUTER_API_KEY');
+      const savedOpenRouter = localStorage.getItem('OPENROUTER_API_KEY') || (import.meta.env.VITE_OPENROUTER_API_KEY as string);
       if (savedOpenRouter) {
         this.activeProvider = 'openrouter';
         if (this.apiKey !== savedOpenRouter) {
@@ -627,8 +627,8 @@ export class AITaskQueue {
     for (const provider of providers) {
       try {
         const key = provider === 'google' 
-          ? (localStorage.getItem('GEMINI_API_KEY') || "") 
-          : (localStorage.getItem(`${provider.toUpperCase()}_API_KEY`) || "");
+          ? (localStorage.getItem('GEMINI_API_KEY') || (import.meta.env.VITE_GEMINI_API_KEY as string) || "") 
+          : (localStorage.getItem(`${provider.toUpperCase()}_API_KEY`) || (import.meta.env[`VITE_${provider.toUpperCase()}_API_KEY`] as string) || "");
         
         if (key) {
           this.updateApiKey(key);
