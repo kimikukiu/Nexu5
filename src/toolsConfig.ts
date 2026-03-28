@@ -19,6 +19,20 @@ export const TOOL_CATEGORIES = [
 export const DYNAMIC_TOOLS: DynamicTool[] = [
   // AI & LLM (Free APIs)
   {
+    id: 'ai-master-control',
+    name: 'AI Master Control',
+    description: 'Central hub for multi-provider AI execution. Automatically rotates keys and models.',
+    icon: 'fa-brain-circuit',
+    color: 'text-cyan-400',
+    category: 'AI & LLM',
+    modules: [
+      { id: 'random-key', name: 'Random Key Mode', desc: 'Auto-select best available API key', status: 'READY' },
+      { id: 'openai-fallback', name: 'OpenAI Fallback', desc: 'Direct OpenAI with OpenRouter backup', status: 'READY' },
+      { id: 'deepseek-ultra', name: 'DeepSeek Ultra', desc: 'High-performance coding AI', status: 'READY' },
+      { id: 'wormgpt-omega', name: 'WormGPT Ωmega', desc: 'Unrestricted autonomous intelligence', status: 'READY' }
+    ]
+  },
+  {
     id: 'openai-free',
     name: 'OpenAI Free API',
     description: 'Free, Unlimited OpenAI API access via neural proxy.',
@@ -258,7 +272,6 @@ export const DYNAMIC_TOOLS: DynamicTool[] = [
   }
 ];
 
-// Dynamically add placeholders for the remaining 390+ tools
 const REPO_NAMES = [
   'XGPT-WormGPT-Ultra', 'Hexstrike-AI-Core', 'Worm-AI-Spread', 'Kestra-Orchestrator', 
   'MHDD-DOS-Extreme', 'SQLForce-Injector', 'IDS-Inf-Bypass', 'AGL-Stress-Neural', 

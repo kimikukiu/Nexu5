@@ -9,6 +9,7 @@ interface ApiConfig {
   deepseekBaseUrl: string;
   openrouter: string;
   openrouterBaseUrl: string;
+  groq: string;
   solana: string;
   shodan: string;
   awsAccessKey: string;
@@ -40,6 +41,7 @@ export const ApiConfigModals: React.FC<ApiConfigModalsProps> = ({
     deepseekBaseUrl: localStorage.getItem('DEEPSEEK_BASE_URL') || 'https://api.deepseek.com/v1',
     openrouter: localStorage.getItem('OPENROUTER_API_KEY') || '',
     openrouterBaseUrl: localStorage.getItem('OPENROUTER_BASE_URL') || 'https://openrouter.ai/api/v1',
+    groq: localStorage.getItem('GROQ_API_KEY') || '',
     solana: localStorage.getItem('SOLANA_RPC_URL') || '',
     shodan: localStorage.getItem('SHODAN_API_KEY') || '',
     awsAccessKey: localStorage.getItem('AWS_ACCESS_KEY_ID') || '',
@@ -56,6 +58,7 @@ export const ApiConfigModals: React.FC<ApiConfigModalsProps> = ({
     localStorage.setItem('DEEPSEEK_BASE_URL', config.deepseekBaseUrl);
     localStorage.setItem('OPENROUTER_API_KEY', config.openrouter);
     localStorage.setItem('OPENROUTER_BASE_URL', config.openrouterBaseUrl);
+    localStorage.setItem('GROQ_API_KEY', config.groq);
     localStorage.setItem('SOLANA_RPC_URL', config.solana);
     localStorage.setItem('SHODAN_API_KEY', config.shodan);
     localStorage.setItem('AWS_ACCESS_KEY_ID', config.awsAccessKey);
@@ -84,12 +87,23 @@ export const ApiConfigModals: React.FC<ApiConfigModalsProps> = ({
             </div>
             
             <div className="p-4 space-y-3 max-h-[70vh] overflow-y-auto custom-scrollbar">
+              <div className="p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-lg mb-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-emerald-500 text-xs font-black uppercase tracking-widest flex items-center gap-2">
+                    <i className="fas fa-random"></i> Random Key Mode
+                  </span>
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500 text-black">ACTIVE</span>
+                </div>
+                <p className="text-[8px] text-emerald-500/70 mt-1 uppercase tracking-tighter">System will automatically rotate through all available keys for maximum uptime.</p>
+              </div>
+
               {[
-                { name: 'OpenAI (GPT-4)', key: config.openai },
+                { name: 'OpenAI (GPT-4o)', key: config.openai },
                 { name: 'Google Gemini', key: config.gemini },
                 { name: 'Anthropic Claude', key: config.anthropic },
                 { name: 'DeepSeek (Free/Pro)', key: config.deepseek },
                 { name: 'OpenRouter', key: config.openrouter },
+                { name: 'Groq (Llama 3)', key: config.groq },
                 { name: 'Solana RPC', key: config.solana },
                 { name: 'Shodan', key: config.shodan },
                 { name: 'AWS S3', key: config.awsAccessKey && config.awsSecretKey },
@@ -212,6 +226,16 @@ export const ApiConfigModals: React.FC<ApiConfigModalsProps> = ({
                 />
               </div>
               <div className="space-y-1">
+                <label className="text-[10px] text-[#ffaa00] uppercase font-bold">GROQ_API_KEY</label>
+                <input 
+                  type="password"
+                  value={config.groq}
+                  onChange={e => setConfig({...config, groq: e.target.value})}
+                  placeholder="Enter key..."
+                  className="w-full bg-black/50 border border-[#ffaa00]/20 rounded p-2 text-xs text-white outline-none focus:border-[#ffaa00]/50"
+                />
+              </div>
+              <div className="space-y-1">
                 <label className="text-[10px] text-[#ffaa00] uppercase font-bold">SOLANA_RPC_URL</label>
                 <input 
                   type="text"
@@ -263,12 +287,18 @@ export const ApiConfigModals: React.FC<ApiConfigModalsProps> = ({
               </div>
             </div>
             
-            <div className="p-4 bg-black/20 border-t border-[#ffaa00]/10">
+            <div className="p-4 bg-black/20 border-t border-[#ffaa00]/10 flex justify-end gap-3">
+              <button 
+                onClick={onCloseInput}
+                className="px-4 py-2 border border-[#ffaa00]/50 text-[#ffaa00] font-bold text-xs uppercase rounded hover:bg-[#ffaa00]/10 transition-all"
+              >
+                Cancel
+              </button>
               <button 
                 onClick={handleSave}
-                className="w-full py-3 bg-[#ffaa00] text-[#0a0f0f] font-bold text-sm uppercase rounded hover:shadow-[0_0_20px_#ffaa00] transition-all"
+                className="px-4 py-2 bg-[#ffaa00] text-[#0a0f0f] font-bold text-xs uppercase rounded hover:shadow-[0_0_15px_#ffaa00] transition-all"
               >
-                SAVE CONFIGURATION
+                Save Configuration
               </button>
             </div>
           </div>

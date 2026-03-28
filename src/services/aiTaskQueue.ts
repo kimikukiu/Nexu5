@@ -175,10 +175,7 @@ export class AITaskQueue {
     }
 
     // Direct browser call
-    // Note: Some providers might block this due to CORS, but OpenRouter and others often allow it if headers are correct
     const directHeaders = { ...headers };
-    
-    // Anthropic requires a special header for direct browser access
     if (url.includes("anthropic.com")) {
       directHeaders["anthropic-dangerous-direct-browser-access"] = "true";
     }
@@ -187,421 +184,195 @@ export class AITaskQueue {
     return response.data;
   }
 
+  public async executeTask(subject: string, prompt: string, files?: {mimeType: string, data: string, name: string}[]): Promise<string> {
+    const providers: AIProvider[] = ['openrouter', 'openai', 'anthropic', 'deepseek', 'google', 'groq'];
+    let lastError = "";
+
+    for (const provider of providers) {
+      try {
+        const key = this.getProviderKey(provider);
+        if (!key) continue;
+
+        this.updateApiKey(key);
+        this.activeProvider = provider;
+        
+        console.log(`[AI CORE] Attempting task for: ${subject} using ${provider}`);
+        
+        switch (provider) {
+          case 'google': return await this.callGoogle(prompt, files);
+          case 'openai': return await this.callOpenAI(prompt, files);
+          case 'anthropic': return await this.callAnthropic(prompt, files);
+          case 'deepseek': return await this.callDeepSeek(prompt, files);
+          case 'openrouter': return await this.callOpenRouter(prompt, files);
+          case 'groq': return await this.callGroq(prompt, files);
+          default: continue;
+        }
+      } catch (e: any) {
+        lastError = e.message || "Unknown error";
+        console.warn(`[AI CORE] Provider ${provider} failed: ${lastError}. Trying next...`);
+        continue;
+      }
+    }
+    return `[AI CORE] Error: All AI providers failed. Last error: ${lastError}`;
+  }
+
+  private getProviderKey(provider: AIProvider): string | null {
+    const keyMap: Record<string, string> = {
+      'google': 'GEMINI_API_KEY',
+      'openai': 'OPENAI_API_KEY',
+      'anthropic': 'ANTHROPIC_API_KEY',
+      'deepseek': 'DEEPSEEK_API_KEY',
+      'openrouter': 'OPENROUTER_API_KEY',
+      'groq': 'GROQ_API_KEY'
+    };
+    return localStorage.getItem(keyMap[provider]) || (import.meta.env[`VITE_${keyMap[provider]}`] as string) || null;
+  }
+
   private async callOpenRouter(prompt: string, files?: {mimeType: string, data: string, name: string}[]): Promise<string> {
     const baseUrl = localStorage.getItem('OPENROUTER_BASE_URL') || "https://openrouter.ai/api/v1";
-    
-    let content: any = prompt;
-    if (files && files.length > 0) {
-      content = [{ type: "text", text: prompt }];
-      files.forEach(f => {
-        if (f.mimeType.startsWith('image/')) {
-          content.push({
-            type: "image_url",
-            image_url: { url: `data:${f.mimeType};base64,${f.data}` }
-          });
-        } else {
-          try {
-            const binaryString = atob(f.data);
-            const bytes = new Uint8Array(binaryString.length);
-            for (let i = 0; i < binaryString.length; i++) {
-              bytes[i] = binaryString.charCodeAt(i);
-            }
-            const textContent = new TextDecoder('utf-8').decode(bytes);
-            content.push({ type: "text", text: `\n\n--- FILE: ${f.name} ---\n${textContent}\n--- END FILE ---\n` });
-          } catch (e) {
-            console.warn(`Could not decode text file ${f.name}`);
-          }
-        }
-      });
-    }
-
     const data = {
       model: this.activeModel,
       messages: [
         { role: "system", content: this.systemInstruction },
-        { role: "user", content: content }
+        { role: "user", content: prompt }
       ]
     };
-
     const headers = { 
       "Authorization": `Bearer ${this.apiKey}`,
       "HTTP-Referer": window.location.origin,
       "X-Title": "Quantum Intelligence Ultra"
     };
-
     const responseData = await this.callWithProxyFallback(`${baseUrl}/chat/completions`, data, headers);
     return responseData.choices[0].message.content;
   }
 
-  public async executeTask(subject: string, prompt: string, files?: {mimeType: string, data: string, name: string}[]): Promise<string> {
-    const bestKey = this.getApiKey();
-    
-    if (bestKey && bestKey !== this.apiKey) {
-      this.updateApiKey(bestKey);
-    }
-    
-    if (prompt.includes('WORM_GPT_OMEGA')) {
-      const savedOpenRouter = localStorage.getItem('OPENROUTER_API_KEY') || (import.meta.env.VITE_OPENROUTER_API_KEY as string);
-      if (savedOpenRouter) {
-        this.activeProvider = 'openrouter';
-        if (this.apiKey !== savedOpenRouter) {
-          this.updateApiKey(savedOpenRouter);
-        }
-      }
-    }
-
-    console.log(`[AI CORE] Executing task for: ${subject} using ${this.activeProvider} [SUPREME_MODE]`);
-    console.log(`[AI CORE] Subscription: ${this.subscriptionStatus} | Quota: ${this.quotaRemaining}`);
-    
-    if (!this.apiKey) {
-      console.error(`[AI CORE] CRITICAL: No API key available for ${this.activeProvider}. Execution will fail.`);
-      return `[AI CORE] Error: API key is missing for ${this.activeProvider}. Please provide a valid API key in Settings or environment variables.`;
-    }
-
-    try {
-      switch (this.activeProvider) {
-        case 'google':
-          return await this.callGoogle(prompt, files);
-        case 'openai':
-          return await this.callOpenAI(prompt, files);
-        case 'anthropic':
-          return await this.callAnthropic(prompt, files);
-        case 'deepseek':
-          return await this.callDeepSeek(prompt, files);
-        case 'openrouter':
-          return await this.callOpenRouter(prompt, files);
-        case 'groq':
-          return await this.callGroq(prompt, files);
-        default:
-          return await this.callGoogle(prompt, files);
-      }
-    } catch (e: any) {
-      let errorMsg = e.response?.data?.error?.message || e.message || "Unknown error";
-      let statusCode = e.response?.status || 0;
-      
-      try {
-        if (typeof errorMsg === 'string' && errorMsg.startsWith('{')) {
-          const parsed = JSON.parse(errorMsg);
-          errorMsg = parsed.error?.message || errorMsg;
-          statusCode = statusCode || parsed.error?.code || 0;
-        }
-      } catch (parseErr) {}
-      
-      if (!statusCode) {
-        statusCode = errorMsg.includes("429") ? 429 : (errorMsg.includes("500") ? 500 : 0);
-      }
-      
-      console.error(`[AI CORE] Task Failed for ${this.activeProvider}:`, errorMsg);
-      
-      // Automatic Fallback for Quota Exceeded (429)
-      if (statusCode === 429 || errorMsg.includes("quota") || errorMsg.includes("RESOURCE_EXHAUSTED")) {
-        console.warn(`[AI CORE] Quota limit detected on node. Rotating to next proxy node in mesh (Nodes: ${this.proxyNodes})...`);
-        try {
-          // Simulate rotation delay
-          await new Promise(resolve => setTimeout(resolve, 500));
-          const localResponse = await axios.post((import.meta.env.VITE_APP_URL as string || "") + "/api/local-chat", { 
-            message: prompt, 
-            context: `Neural Proxy Rotation active. Bypassing quota limit for ${this.activeProvider}.` 
-          });
-          return localResponse.data.text || "### ⚡ NEURAL_PROXY: ROTATION_SUCCESS\n\nLimit bypassed.";
-        } catch (localErr) {
-          return "### ⚡ EMERGENCY_CORE: ACTIVE\n\nAPI Quota exceeded and Local Core is unreachable. System operating in restricted mode. Please check your internet connection or API billing.";
-        }
-      }
-
-      if (statusCode === 500 || errorMsg.includes("xhr error") || errorMsg.includes("UNKNOWN")) {
-        return `### ⚡ EMERGENCY_CORE: ACTIVE\n\nProvider ${this.activeProvider} experienced an internal server error (500) or network failure. Please try again later.`;
-      }
-
-      if (errorMsg.includes("401")) {
-        return `[AI CORE] Error: Unauthorized (401). The API key for ${this.activeProvider} is missing or invalid. Please check your environment configuration.`;
-      }
-      
-      return `[AI CORE] Error: ${errorMsg}. Status: ${statusCode}. Provider: ${this.activeProvider}. Check console for details.`;
-    }
-  }
-
   private async callGoogle(prompt: string, files?: {mimeType: string, data: string, name: string}[]): Promise<string> {
-    const models = [
-      "gemini-3.1-flash-preview",
-      "gemini-3-flash-preview",
-      "gemini-3.1-pro-preview",
-      "gemini-3.1-flash-lite-preview"
-    ];
-
-    let lastError = "";
+    const models = ["gemini-1.5-pro", "gemini-1.5-flash", "gemini-pro"];
     const ai = new GoogleGenAI({ apiKey: this.apiKey });
-
     for (const modelName of models) {
       try {
-        console.log(`[AI CORE] Attempting generation with ${modelName}...`);
-        
-        const parts: any[] = [{ text: prompt }];
-        if (files && files.length > 0) {
-          files.forEach(f => {
-            if (f.mimeType.startsWith('image/')) {
-              parts.push({
-                inlineData: {
-                  mimeType: f.mimeType,
-                  data: f.data
-                }
-              });
-            } else {
-              try {
-                // Decode base64 to UTF-8 properly
-                const binaryString = atob(f.data);
-                const bytes = new Uint8Array(binaryString.length);
-                for (let i = 0; i < binaryString.length; i++) {
-                  bytes[i] = binaryString.charCodeAt(i);
-                }
-                const textContent = new TextDecoder('utf-8').decode(bytes);
-                parts.push({ text: `\n\n--- FILE: ${f.name} ---\n${textContent}\n--- END FILE ---\n` });
-              } catch (e) {
-                console.warn(`Could not decode text file ${f.name}`);
-              }
-            }
-          });
-        }
-
         const response = await ai.models.generateContent({
           model: modelName,
-          contents: { parts },
-          config: {
-            systemInstruction: this.systemInstruction,
-            tools: [{ googleSearch: {} }, { urlContext: {} }]
-          }
+          contents: [{ parts: [{ text: prompt }] }],
+          config: { systemInstruction: this.systemInstruction }
         });
         return response.text || "### ⚡ CORE_ERROR: EMPTY_RESPONSE";
-      } catch (e: any) {
-        lastError = e.response?.data?.error?.message || e.message || "Unknown error";
-        
-        // Parse JSON error if possible
-        let parsedCode = 0;
-        try {
-          if (e.message && e.message.startsWith('{')) {
-            const parsed = JSON.parse(e.message);
-            parsedCode = parsed.error?.code || 0;
-          }
-        } catch (parseErr) {}
-        
-        const statusCode = e.response?.status || parsedCode || (e.message?.includes("429") ? 429 : (e.message?.includes("404") ? 404 : (e.message?.includes("500") ? 500 : 0)));
-        
-        console.warn(`[AI CORE] ${modelName} failed (${statusCode} / ${lastError}). Rotating to next model...`);
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        continue; 
+      } catch (e) {
+        console.warn(`[AI CORE] Gemini model ${modelName} failed, trying next...`);
+        continue;
       }
     }
-
-    throw new Error(`All Google models exhausted. Last error: ${lastError}`);
+    throw new Error("All Google models exhausted.");
   }
 
   private async callOpenAI(prompt: string, files?: {mimeType: string, data: string, name: string}[]): Promise<string> {
-    // Check if it's a DeepSeek key
-    const isDeepSeekKey = this.apiKey.startsWith("ds-") || (this.apiKey.length > 30 && !this.apiKey.includes("-"));
-    const baseUrl = isDeepSeekKey 
-      ? (localStorage.getItem('DEEPSEEK_BASE_URL') || "https://api.deepseek.com/v1")
-      : (localStorage.getItem('OPENAI_BASE_URL') || "https://api.openai.com/v1");
-      
-    const url = `${baseUrl}/chat/completions`;
-    console.log(`[AI CORE] callOpenAI: Sending request to ${url} with model ${this.activeModel}. Key: ${this.apiKey.substring(0, 4)}...`);
-    
-    let content: any = prompt;
-    if (files && files.length > 0) {
-      content = [{ type: "text", text: prompt }];
-      files.forEach(f => {
-        if (f.mimeType.startsWith('image/')) {
-          content.push({
-            type: "image_url",
-            image_url: { url: `data:${f.mimeType};base64,${f.data}` }
-          });
-        } else {
-          try {
-            const binaryString = atob(f.data);
-            const bytes = new Uint8Array(binaryString.length);
-            for (let i = 0; i < binaryString.length; i++) {
-              bytes[i] = binaryString.charCodeAt(i);
-            }
-            const textContent = new TextDecoder('utf-8').decode(bytes);
-            content.push({ type: "text", text: `\n\n--- FILE: ${f.name} ---\n${textContent}\n--- END FILE ---\n` });
-          } catch (e) {
-            console.warn(`Could not decode text file ${f.name}`);
-          }
-        }
-      });
-    }
-
+    const baseUrl = localStorage.getItem('OPENAI_BASE_URL') || "https://api.openai.com/v1";
     const data = {
       model: this.activeModel,
       messages: [
         { role: "system", content: this.systemInstruction },
-        { role: "user", content: content }
+        { role: "user", content: prompt }
       ]
     };
-
     const headers = { "Authorization": `Bearer ${this.apiKey}` };
-    
-    const responseData = await this.callWithProxyFallback(url, data, headers);
+    const responseData = await this.callWithProxyFallback(`${baseUrl}/chat/completions`, data, headers);
     return responseData.choices[0].message.content;
   }
 
   private async callAnthropic(prompt: string, files?: {mimeType: string, data: string, name: string}[]): Promise<string> {
-    let content: any = prompt;
-    if (files && files.length > 0) {
-      content = [{ type: "text", text: prompt }];
-      files.forEach(f => {
-        if (f.mimeType.startsWith('image/')) {
-          content.push({
-            type: "image",
-            source: {
-              type: "base64",
-              media_type: f.mimeType,
-              data: f.data
-            }
-          });
-        } else {
-          try {
-            const binaryString = atob(f.data);
-            const bytes = new Uint8Array(binaryString.length);
-            for (let i = 0; i < binaryString.length; i++) {
-              bytes[i] = binaryString.charCodeAt(i);
-            }
-            const textContent = new TextDecoder('utf-8').decode(bytes);
-            content.push({ type: "text", text: `\n\n--- FILE: ${f.name} ---\n${textContent}\n--- END FILE ---\n` });
-          } catch (e) {
-            console.warn(`Could not decode text file ${f.name}`);
-          }
-        }
-      });
-    }
-
     const data = {
       model: this.activeModel,
       max_tokens: 4000,
       system: this.systemInstruction,
-      messages: [{ role: "user", content: content }]
+      messages: [{ role: "user", content: prompt }]
     };
-
     const headers = { 
       "x-api-key": this.apiKey,
       "anthropic-version": "2023-06-01",
       "content-type": "application/json",
       "anthropic-dangerous-direct-browser-access": "true"
     };
-
     const responseData = await this.callWithProxyFallback("https://api.anthropic.com/v1/messages", data, headers);
     return responseData.content[0].text;
   }
-  
+
   private async callDeepSeek(prompt: string, files?: {mimeType: string, data: string, name: string}[]): Promise<string> {
-    // DeepSeek API is OpenAI compatible
     const baseUrl = localStorage.getItem('DEEPSEEK_BASE_URL') || "https://api.deepseek.com/v1";
-    
-    let finalPrompt = prompt;
-    if (files && files.length > 0) {
-      files.forEach(f => {
-        if (!f.mimeType.startsWith('image/')) {
-          try {
-            const binaryString = atob(f.data);
-            const bytes = new Uint8Array(binaryString.length);
-            for (let i = 0; i < binaryString.length; i++) {
-              bytes[i] = binaryString.charCodeAt(i);
-            }
-            const textContent = new TextDecoder('utf-8').decode(bytes);
-            finalPrompt += `\n\n--- FILE: ${f.name} ---\n${textContent}\n--- END FILE ---\n`;
-          } catch (e) {
-            console.warn(`Could not decode text file ${f.name}`);
-          }
-        }
-      });
-    }
-
-    const data = {
-      model: this.activeModel,
-      messages: [
-        { role: "system", content: this.systemInstruction },
-        { role: "user", content: finalPrompt }
-      ]
-    };
-
-    const headers = { "Authorization": `Bearer ${this.apiKey}` };
-
-    const responseData = await this.callWithProxyFallback(`${baseUrl}/chat/completions`, data, headers);
-    return responseData.choices[0].message.content;
-  }
-
-  private async callDeepSeekStream(prompt: string, onChunk: (chunk: string) => void): Promise<void> {
-    const baseUrl = localStorage.getItem('DEEPSEEK_BASE_URL') || "https://api.deepseek.com/v1";
-    const url = `${baseUrl}/chat/completions`;
     const data = {
       model: this.activeModel,
       messages: [
         { role: "system", content: this.systemInstruction },
         { role: "user", content: prompt }
-      ],
-      stream: true
+      ]
     };
     const headers = { "Authorization": `Bearer ${this.apiKey}` };
+    const responseData = await this.callWithProxyFallback(`${baseUrl}/chat/completions`, data, headers);
+    return responseData.choices[0].message.content;
+  }
 
-    let response: Response;
-    try {
-      response = await fetch(this.proxyUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url, data, headers })
-      });
-      
-      if (!response.ok) {
-        throw new Error(`Proxy status ${response.status}`);
-      }
-    } catch (e) {
-      console.warn(`[AI CORE] Proxy failed for DeepSeek stream. Attempting direct browser call to ${url}...`);
-      response = await fetch(url, {
-        method: "POST",
-        headers: { 
-          "Content-Type": "application/json",
-          ...headers
-        },
-        body: JSON.stringify(data)
-      });
-    }
+  private async callGroq(prompt: string, files?: {mimeType: string, data: string, name: string}[]): Promise<string> {
+    const data = {
+      model: this.activeModel,
+      messages: [
+        { role: "system", content: this.systemInstruction },
+        { role: "user", content: prompt }
+      ]
+    };
+    const headers = { "Authorization": `Bearer ${this.apiKey}` };
+    const responseData = await this.callWithProxyFallback("https://api.groq.com/openai/v1/chat/completions", data, headers);
+    return responseData.choices[0].message.content;
+  }
 
-    if (!response.ok) {
-      const errText = await response.text();
-      throw new Error(`API error: ${response.status} ${errText}`);
-    }
-
-    if (!response.body) throw new Error("No response body");
-    
-    const reader = response.body.getReader();
-    const decoder = new TextDecoder();
-    
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      const chunk = decoder.decode(value, { stream: true });
-      
-      // Parse the chunk
-      const lines = chunk.split('\n');
-      for (const line of lines) {
-        if (line.startsWith('data: ')) {
-          const data = line.substring(6);
-          if (data === '[DONE]') break;
-          try {
-            const json = JSON.parse(data);
-            if (json.choices && json.choices[0].delta.content) {
-              onChunk(json.choices[0].delta.content);
-            }
-          } catch (e) {
-            // Ignore parse errors for partial chunks
-          }
+  public async executeTaskStream(subject: string, prompt: string, onChunk: (chunk: string) => void): Promise<void> {
+    const providers: AIProvider[] = ['openrouter', 'openai', 'anthropic', 'deepseek', 'google', 'groq'];
+    for (const provider of providers) {
+      try {
+        const key = this.getProviderKey(provider);
+        if (!key) continue;
+        this.updateApiKey(key);
+        this.activeProvider = provider;
+        
+        console.log(`[AI CORE] Attempting streaming task with provider: ${provider}`);
+        
+        switch (provider) {
+          case 'google': await this.callGoogleStream(prompt, onChunk); return;
+          case 'openrouter': await this.callOpenRouterStream(prompt, onChunk); return;
+          case 'deepseek': await this.callDeepSeekStream(prompt, onChunk); return;
+          default:
+            const res = await this.executeTask(subject, prompt);
+            onChunk(res);
+            return;
         }
+      } catch (e) {
+        console.warn(`[AI CORE] Provider ${provider} failed for streaming, trying next...`);
+        continue;
       }
+    }
+    throw new Error("All AI providers failed for streaming.");
+  }
+
+  private async callGoogleStream(prompt: string, onChunk: (chunk: string) => void): Promise<void> {
+    const ai = new GoogleGenAI({ apiKey: this.apiKey });
+    const response = await ai.models.generateContentStream({
+      model: "gemini-1.5-flash",
+      contents: [{ parts: [{ text: prompt }] }],
+      config: { systemInstruction: this.systemInstruction }
+    });
+    for await (const chunk of response) {
+      if (chunk.text) onChunk(chunk.text);
     }
   }
 
   private async callOpenRouterStream(prompt: string, onChunk: (chunk: string) => void): Promise<void> {
-    const baseUrl = localStorage.getItem('OPENROUTER_BASE_URL') || "https://openrouter.ai/api/v1";
-    const url = `${baseUrl}/chat/completions`;
+    await this.callGenericStream("https://openrouter.ai/api/v1/chat/completions", prompt, onChunk);
+  }
+
+  private async callDeepSeekStream(prompt: string, onChunk: (chunk: string) => void): Promise<void> {
+    const baseUrl = localStorage.getItem('DEEPSEEK_BASE_URL') || "https://api.deepseek.com/v1";
+    await this.callGenericStream(`${baseUrl}/chat/completions`, prompt, onChunk);
+  }
+
+  private async callGenericStream(url: string, prompt: string, onChunk: (chunk: string) => void): Promise<void> {
     const data = {
       model: this.activeModel,
       messages: [
@@ -612,183 +383,39 @@ export class AITaskQueue {
     };
     const headers = { 
       "Authorization": `Bearer ${this.apiKey}`,
+      "Content-Type": "application/json",
       "HTTP-Referer": window.location.origin,
       "X-Title": "WormGPT Omega AI"
     };
 
-    let response: Response;
-    try {
-      response = await fetch(this.proxyUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url, data, headers })
-      });
-      
-      if (!response.ok) {
-        throw new Error(`Proxy status ${response.status}`);
-      }
-    } catch (e) {
-      console.warn(`[AI CORE] Proxy failed for OpenRouter stream. Attempting direct browser call to ${url}...`);
-      response = await fetch(url, {
-        method: "POST",
-        headers: { 
-          "Content-Type": "application/json",
-          ...headers
-        },
-        body: JSON.stringify(data)
-      });
-    }
+    const response = await fetch(url, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(data)
+    });
 
-    if (!response.ok) {
-      const errText = await response.text();
-      throw new Error(`API error: ${response.status} ${errText}`);
-    }
-
+    if (!response.ok) throw new Error(`API error: ${response.status}`);
     if (!response.body) throw new Error("No response body");
     
     const reader = response.body.getReader();
     const decoder = new TextDecoder();
-    
     while (true) {
       const { done, value } = await reader.read();
       if (done) break;
       const chunk = decoder.decode(value, { stream: true });
-      
-      // Parse the chunk
       const lines = chunk.split('\n');
       for (const line of lines) {
         if (line.startsWith('data: ')) {
-          const data = line.substring(6);
-          if (data === '[DONE]') break;
+          const content = line.substring(6);
+          if (content === '[DONE]') break;
           try {
-            const json = JSON.parse(data);
+            const json = JSON.parse(content);
             if (json.choices && json.choices[0].delta.content) {
               onChunk(json.choices[0].delta.content);
             }
-          } catch (e) {
-            // Ignore parse errors for partial chunks
-          }
+          } catch (e) {}
         }
       }
     }
-  }
-
-  public async executeTaskStream(subject: string, prompt: string, onChunk: (chunk: string) => void): Promise<void> {
-    const providers = [];
-    if (localStorage.getItem('OPENROUTER_API_KEY') || import.meta.env.VITE_OPENROUTER_API_KEY) providers.push('openrouter');
-    if (localStorage.getItem('ANTHROPIC_API_KEY') || import.meta.env.VITE_ANTHROPIC_API_KEY) providers.push('anthropic');
-    if (localStorage.getItem('DEEPSEEK_API_KEY') || import.meta.env.VITE_DEEPSEEK_API_KEY) providers.push('deepseek');
-    if (localStorage.getItem('OPENAI_API_KEY') || import.meta.env.VITE_OPENAI_API_KEY) providers.push('openai');
-    if (localStorage.getItem('GEMINI_API_KEY') || import.meta.env.VITE_GEMINI_API_KEY) providers.push('google');
-
-    for (const provider of providers) {
-      try {
-        const key = provider === 'google' 
-          ? (localStorage.getItem('GEMINI_API_KEY') || (import.meta.env.VITE_GEMINI_API_KEY as string) || "") 
-          : (localStorage.getItem(`${provider.toUpperCase()}_API_KEY`) || (import.meta.env[`VITE_${provider.toUpperCase()}_API_KEY`] as string) || "");
-        
-        if (key) {
-          this.updateApiKey(key);
-          // Force the provider in case updateApiKey misidentified it
-          this.activeProvider = provider as AIProvider;
-        }
-        
-        console.log(`[AI CORE] Attempting streaming task with provider: ${this.activeProvider} (${this.activeModel})`);
-        
-        switch (this.activeProvider) {
-          case 'google':
-            await this.callGoogleStream(prompt, onChunk);
-            return; // Success
-          case 'deepseek':
-            await this.callDeepSeekStream(prompt, onChunk);
-            return; // Success
-          case 'openrouter':
-            await this.callOpenRouterStream(prompt, onChunk);
-            return; // Success
-          default:
-            // Fallback to non-streaming for now if not implemented
-            const res = await this.executeTask(subject, prompt);
-            onChunk(res);
-            return; // Success
-        }
-      } catch (e) {
-        console.warn(`[AI CORE] Provider ${provider} failed, trying next...`, e);
-        continue; // Try next
-      }
-    }
-    throw new Error("All AI providers failed.");
-  }
-
-
-  private async callGoogleStream(prompt: string, onChunk: (chunk: string) => void): Promise<void> {
-    const models = [
-      "gemini-3.1-flash-preview",
-      "gemini-3-flash-preview",
-      "gemini-3.1-pro-preview",
-      "gemini-3.1-flash-lite-preview"
-    ];
-
-    let lastError = "";
-    const ai = new GoogleGenAI({ apiKey: this.apiKey });
-
-    for (const modelName of models) {
-      try {
-        console.log(`[AI CORE] Attempting streaming generation with ${modelName}...`);
-        
-        const response = await ai.models.generateContentStream({
-          model: modelName,
-          contents: [{ parts: [{ text: prompt }] }],
-          config: {
-            systemInstruction: this.systemInstruction,
-            tools: [{ googleSearch: {} }, { urlContext: {} }]
-          }
-        });
-
-        for await (const chunk of response) {
-          if (chunk.text) {
-            onChunk(chunk.text);
-          }
-        }
-        return; // Success
-      } catch (e: any) {
-        lastError = e.response?.data?.error?.message || e.message || "Unknown error";
-        console.warn(`[AI CORE] Streaming generation with ${modelName} failed:`, lastError);
-      }
-    }
-    throw new Error(`All Google models failed for streaming: ${lastError}`);
-  }
-
-  private async callGroq(prompt: string, files?: {mimeType: string, data: string, name: string}[]): Promise<string> {
-    let finalPrompt = prompt;
-    if (files && files.length > 0) {
-      files.forEach(f => {
-        if (!f.mimeType.startsWith('image/')) {
-          try {
-            const binaryString = atob(f.data);
-            const bytes = new Uint8Array(binaryString.length);
-            for (let i = 0; i < binaryString.length; i++) {
-              bytes[i] = binaryString.charCodeAt(i);
-            }
-            const textContent = new TextDecoder('utf-8').decode(bytes);
-            finalPrompt += `\n\n--- FILE: ${f.name} ---\n${textContent}\n--- END FILE ---\n`;
-          } catch (e) {
-            console.warn(`Could not decode text file ${f.name}`);
-          }
-        }
-      });
-    }
-
-    const data = {
-      model: this.activeModel,
-      messages: [
-        { role: "system", content: this.systemInstruction },
-        { role: "user", content: finalPrompt }
-      ]
-    };
-
-    const headers = { "Authorization": `Bearer ${this.apiKey}` };
-
-    const responseData = await this.callWithProxyFallback("https://api.groq.com/openai/v1/chat/completions", data, headers);
-    return responseData.choices[0].message.content;
   }
 }

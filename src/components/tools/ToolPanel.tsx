@@ -13,12 +13,14 @@ const ToolPanel: React.FC<ToolPanelProps> = ({ title, icon, color, description, 
   const [activeModule, setActiveModule] = useState(modules[0]?.id);
   const [logs, setLogs] = useState<string[]>([]);
   const [isRunning, setIsRunning] = useState(false);
+  const [mode, setMode] = useState<'AUTONOMOUS' | 'MANUAL'>('AUTONOMOUS');
   
   // New states for dynamic AI execution
   const [target, setTarget] = useState('');
   const [threads, setThreads] = useState(10);
   const [customPrompt, setCustomPrompt] = useState('');
   const [consoleOutput, setConsoleOutput] = useState('');
+  const [manualCommand, setManualCommand] = useState('');
   
   const taskQueue = useRef(new AITaskQueue(""));
   const consoleEndRef = useRef<HTMLDivElement>(null);
@@ -41,17 +43,27 @@ const ToolPanel: React.FC<ToolPanelProps> = ({ title, icon, color, description, 
     const activeMod = modules.find(m => m.id === activeModule);
     setLogs(prev => [...prev, `[${new Date().toLocaleTimeString()}] Loading module: ${activeMod?.name}...`]);
     
-    const prompt = `You are the ${title} tool, specifically the ${activeMod?.name} module.
-    Target: ${target || 'Unknown'}
-    Threads: ${threads}
-    Custom User Directive: ${customPrompt || 'Execute standard protocol.'}
+    let prompt = "";
+    if (mode === 'AUTONOMOUS') {
+      prompt = `You are the ${title} tool, specifically the ${activeMod?.name} module operating in AUTONOMOUS mode.
+      Target: ${target || 'Unknown'}
+      Threads: ${threads}
+      Custom User Directive: ${customPrompt || 'Execute standard protocol.'}
 
-    Generate a realistic, highly technical, line-by-line console output for this execution.
-    Act as the tool itself. Do not use markdown formatting, just raw console text.
-    Stream the output as if it's happening in real-time.`;
+      Generate a realistic, highly technical, line-by-line console output for this execution.
+      Act as the tool itself. Do not use markdown formatting, just raw console text.
+      Stream the output as if it's happening in real-time.`;
+    } else {
+      prompt = `You are the ${title} tool, specifically the ${activeMod?.name} module operating in MANUAL mode.
+      The user has provided a manual command: "${manualCommand}"
+      Target Context: ${target || 'Local Environment'}
+      
+      Execute this command as the tool. Provide technical console output reflecting the manual execution.
+      Stream the output as if it's happening in real-time.`;
+    }
 
     try {
-      setLogs(prev => [...prev, `[${new Date().toLocaleTimeString()}] Target acquired. Executing payload via AI Swarm...`]);
+      setLogs(prev => [...prev, `[${new Date().toLocaleTimeString()}] Mode: ${mode}. Executing payload via AI Swarm...`]);
       
       await taskQueue.current.executeTaskStream(`Tool Execution: ${title}`, prompt, (chunk) => {
         setConsoleOutput(prev => prev + chunk);
@@ -68,13 +80,29 @@ const ToolPanel: React.FC<ToolPanelProps> = ({ title, icon, color, description, 
   return (
     <div className="flex flex-col h-full bg-[#0a0a0a] border border-white/10 rounded-lg overflow-hidden font-mono">
       {/* Header */}
-      <div className={`flex items-center gap-3 p-4 border-b border-white/10 bg-black/50`}>
-        <div className={`w-10 h-10 rounded-lg flex items-center justify-center border border-white/10 ${color} bg-white/5`}>
-          <i className={`fas ${icon} text-xl`}></i>
+      <div className={`flex items-center justify-between p-4 border-b border-white/10 bg-black/50`}>
+        <div className="flex items-center gap-3">
+          <div className={`w-10 h-10 rounded-lg flex items-center justify-center border border-white/10 ${color} bg-white/5`}>
+            <i className={`fas ${icon} text-xl`}></i>
+          </div>
+          <div>
+            <h2 className={`text-lg font-black uppercase tracking-widest ${color}`}>{title}</h2>
+            <p className="text-[10px] text-gray-500 uppercase tracking-widest">{description}</p>
+          </div>
         </div>
-        <div>
-          <h2 className={`text-lg font-black uppercase tracking-widest ${color}`}>{title}</h2>
-          <p className="text-[10px] text-gray-500 uppercase tracking-widest">{description}</p>
+        <div className="flex bg-black border border-white/10 rounded p-1">
+          <button 
+            onClick={() => setMode('AUTONOMOUS')}
+            className={`px-3 py-1 text-[8px] font-black uppercase tracking-widest rounded transition-all ${mode === 'AUTONOMOUS' ? 'bg-white/10 text-white' : 'text-gray-500 hover:text-gray-300'}`}
+          >
+            Autonomous
+          </button>
+          <button 
+            onClick={() => setMode('MANUAL')}
+            className={`px-3 py-1 text-[8px] font-black uppercase tracking-widest rounded transition-all ${mode === 'MANUAL' ? 'bg-white/10 text-white' : 'text-gray-500 hover:text-gray-300'}`}
+          >
+            Manual
+          </button>
         </div>
       </div>
 
@@ -120,7 +148,9 @@ const ToolPanel: React.FC<ToolPanelProps> = ({ title, icon, color, description, 
           {/* Config Area */}
           <div className="p-4 border-b border-white/10">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Execution Configuration</h3>
+              <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                {mode === 'AUTONOMOUS' ? 'Autonomous Config' : 'Manual Command Input'}
+              </h3>
               <button 
                 onClick={handleExecute}
                 className={`px-4 py-1.5 rounded text-[10px] font-black uppercase tracking-widest transition-all ${
@@ -129,44 +159,71 @@ const ToolPanel: React.FC<ToolPanelProps> = ({ title, icon, color, description, 
                     : `bg-white/5 ${color} border border-current hover:bg-white/10`
                 }`}
               >
-                {isRunning ? 'HALT PROCESS' : 'EXECUTE MODULE'}
+                {isRunning ? 'HALT PROCESS' : mode === 'AUTONOMOUS' ? 'EXECUTE MODULE' : 'RUN COMMAND'}
               </button>
             </div>
             
-            <div className="grid grid-cols-2 gap-4 mb-4">
-              <div className="space-y-1">
-                <label className="text-[8px] text-gray-500 uppercase tracking-widest">Target Vector</label>
-                <input 
-                  type="text" 
-                  value={target}
-                  onChange={(e) => setTarget(e.target.value)}
-                  placeholder="Enter target IP/URL/Hash..." 
-                  className="w-full bg-black border border-white/10 rounded px-2 py-1.5 text-[10px] text-white outline-none focus:border-white/30" 
-                />
+            {mode === 'AUTONOMOUS' ? (
+              <>
+                <div className="grid grid-cols-2 gap-4 mb-4">
+                  <div className="space-y-1">
+                    <label className="text-[8px] text-gray-500 uppercase tracking-widest">Target Vector</label>
+                    <input 
+                      type="text" 
+                      value={target}
+                      onChange={(e) => setTarget(e.target.value)}
+                      placeholder="Enter target IP/URL/Hash..." 
+                      className="w-full bg-black border border-white/10 rounded px-2 py-1.5 text-[10px] text-white outline-none focus:border-white/30" 
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[8px] text-gray-500 uppercase tracking-widest">Thread Count</label>
+                    <input 
+                      type="number" 
+                      value={threads}
+                      onChange={(e) => setThreads(parseInt(e.target.value) || 10)}
+                      className="w-full bg-black border border-white/10 rounded px-2 py-1.5 text-[10px] text-white outline-none focus:border-white/30" 
+                    />
+                  </div>
+                </div>
+                
+                <div className="space-y-1">
+                  <label className="text-[8px] text-[#00ffc3] uppercase tracking-widest flex items-center gap-2">
+                    <i className="fas fa-magic"></i> Dynamic AI Directive (Auto-Rewrite)
+                  </label>
+                  <input 
+                    type="text" 
+                    value={customPrompt}
+                    onChange={(e) => setCustomPrompt(e.target.value)}
+                    placeholder="E.g., 'Rewrite this tool to scan for CVE-2024-XXXX and output in JSON format'" 
+                    className="w-full bg-black/50 border border-[#00ffc3]/30 rounded px-2 py-1.5 text-[10px] text-[#00ffc3] outline-none focus:border-[#00ffc3]" 
+                  />
+                </div>
+              </>
+            ) : (
+              <div className="space-y-3">
+                <div className="space-y-1">
+                  <label className="text-[8px] text-gray-500 uppercase tracking-widest">Manual Command</label>
+                  <input 
+                    type="text" 
+                    value={manualCommand}
+                    onChange={(e) => setManualCommand(e.target.value)}
+                    placeholder="Enter manual command (e.g., --scan --target 192.168.1.1 --aggressive)" 
+                    className="w-full bg-black border border-white/10 rounded px-2 py-1.5 text-[10px] text-white outline-none focus:border-white/30" 
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[8px] text-gray-500 uppercase tracking-widest">Target Context (Optional)</label>
+                  <input 
+                    type="text" 
+                    value={target}
+                    onChange={(e) => setTarget(e.target.value)}
+                    placeholder="Enter target IP/URL..." 
+                    className="w-full bg-black border border-white/10 rounded px-2 py-1.5 text-[10px] text-white outline-none focus:border-white/30" 
+                  />
+                </div>
               </div>
-              <div className="space-y-1">
-                <label className="text-[8px] text-gray-500 uppercase tracking-widest">Thread Count</label>
-                <input 
-                  type="number" 
-                  value={threads}
-                  onChange={(e) => setThreads(parseInt(e.target.value) || 10)}
-                  className="w-full bg-black border border-white/10 rounded px-2 py-1.5 text-[10px] text-white outline-none focus:border-white/30" 
-                />
-              </div>
-            </div>
-            
-            <div className="space-y-1">
-              <label className="text-[8px] text-[#00ffc3] uppercase tracking-widest flex items-center gap-2">
-                <i className="fas fa-magic"></i> Dynamic AI Directive (Auto-Rewrite)
-              </label>
-              <input 
-                type="text" 
-                value={customPrompt}
-                onChange={(e) => setCustomPrompt(e.target.value)}
-                placeholder="E.g., 'Rewrite this tool to scan for CVE-2024-XXXX and output in JSON format'" 
-                className="w-full bg-black/50 border border-[#00ffc3]/30 rounded px-2 py-1.5 text-[10px] text-[#00ffc3] outline-none focus:border-[#00ffc3]" 
-              />
-            </div>
+            )}
           </div>
 
           {/* Console Output */}
