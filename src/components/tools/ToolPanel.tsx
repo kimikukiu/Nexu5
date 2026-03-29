@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { AITaskQueue } from '../../services/aiTaskQueue';
+import { ManualDdosTool } from './ManualDdosTool';
 
 interface ToolPanelProps {
   title: string;
@@ -77,6 +78,12 @@ const ToolPanel: React.FC<ToolPanelProps> = ({ title, icon, color, description, 
     }
   };
 
+  const isDdosTool = title === 'US-DDOS-V2' || title === 'ufodos';
+
+  const addManualLog = (message: string, level: 'info' | 'success' | 'warning' | 'error') => {
+    setLogs(prev => [...prev, `[${new Date().toLocaleTimeString()}] ${message}`]);
+  };
+
   return (
     <div className="flex flex-col h-full bg-[#0a0a0a] border border-white/10 rounded-lg overflow-hidden font-mono">
       {/* Header */}
@@ -146,83 +153,89 @@ const ToolPanel: React.FC<ToolPanelProps> = ({ title, icon, color, description, 
         {/* Control Panel (Right) */}
         <div className="flex-1 flex flex-col bg-[#0a0a0a]">
           {/* Config Area */}
-          <div className="p-4 border-b border-white/10">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
-                {mode === 'AUTONOMOUS' ? 'Autonomous Config' : 'Manual Command Input'}
-              </h3>
-              <button 
-                onClick={handleExecute}
-                className={`px-4 py-1.5 rounded text-[10px] font-black uppercase tracking-widest transition-all ${
-                  isRunning 
-                    ? 'bg-red-500/20 text-red-500 border border-red-500/50 hover:bg-red-500 hover:text-white' 
-                    : `bg-white/5 ${color} border border-current hover:bg-white/10`
-                }`}
-              >
-                {isRunning ? 'HALT PROCESS' : mode === 'AUTONOMOUS' ? 'EXECUTE MODULE' : 'RUN COMMAND'}
-              </button>
-            </div>
-            
-            {mode === 'AUTONOMOUS' ? (
+          <div className="p-4 border-b border-white/10 overflow-y-auto max-h-[50vh] custom-scroll">
+            {mode === 'MANUAL' && isDdosTool ? (
+              <ManualDdosTool toolName={title as 'US-DDOS-V2' | 'ufodos'} addLog={addManualLog} />
+            ) : (
               <>
-                <div className="grid grid-cols-2 gap-4 mb-4">
-                  <div className="space-y-1">
-                    <label className="text-[8px] text-gray-500 uppercase tracking-widest">Target Vector</label>
-                    <input 
-                      type="text" 
-                      value={target}
-                      onChange={(e) => setTarget(e.target.value)}
-                      placeholder="Enter target IP/URL/Hash..." 
-                      className="w-full bg-black border border-white/10 rounded px-2 py-1.5 text-[10px] text-white outline-none focus:border-white/30" 
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-[8px] text-gray-500 uppercase tracking-widest">Thread Count</label>
-                    <input 
-                      type="number" 
-                      value={threads}
-                      onChange={(e) => setThreads(parseInt(e.target.value) || 10)}
-                      className="w-full bg-black border border-white/10 rounded px-2 py-1.5 text-[10px] text-white outline-none focus:border-white/30" 
-                    />
-                  </div>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                    {mode === 'AUTONOMOUS' ? 'Autonomous Config' : 'Manual Command Input'}
+                  </h3>
+                  <button 
+                    onClick={handleExecute}
+                    className={`px-4 py-1.5 rounded text-[10px] font-black uppercase tracking-widest transition-all ${
+                      isRunning 
+                        ? 'bg-red-500/20 text-red-500 border border-red-500/50 hover:bg-red-500 hover:text-white' 
+                        : `bg-white/5 ${color} border border-current hover:bg-white/10`
+                    }`}
+                  >
+                    {isRunning ? 'HALT PROCESS' : mode === 'AUTONOMOUS' ? 'EXECUTE MODULE' : 'RUN COMMAND'}
+                  </button>
                 </div>
                 
-                <div className="space-y-1">
-                  <label className="text-[8px] text-[#00ffc3] uppercase tracking-widest flex items-center gap-2">
-                    <i className="fas fa-magic"></i> Dynamic AI Directive (Auto-Rewrite)
-                  </label>
-                  <input 
-                    type="text" 
-                    value={customPrompt}
-                    onChange={(e) => setCustomPrompt(e.target.value)}
-                    placeholder="E.g., 'Rewrite this tool to scan for CVE-2024-XXXX and output in JSON format'" 
-                    className="w-full bg-black/50 border border-[#00ffc3]/30 rounded px-2 py-1.5 text-[10px] text-[#00ffc3] outline-none focus:border-[#00ffc3]" 
-                  />
-                </div>
+                {mode === 'AUTONOMOUS' ? (
+                  <>
+                    <div className="grid grid-cols-2 gap-4 mb-4">
+                      <div className="space-y-1">
+                        <label className="text-[8px] text-gray-500 uppercase tracking-widest">Target Vector</label>
+                        <input 
+                          type="text" 
+                          value={target}
+                          onChange={(e) => setTarget(e.target.value)}
+                          placeholder="Enter target IP/URL/Hash..." 
+                          className="w-full bg-black border border-white/10 rounded px-2 py-1.5 text-[10px] text-white outline-none focus:border-white/30" 
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[8px] text-gray-500 uppercase tracking-widest">Thread Count</label>
+                        <input 
+                          type="number" 
+                          value={threads}
+                          onChange={(e) => setThreads(parseInt(e.target.value) || 10)}
+                          className="w-full bg-black border border-white/10 rounded px-2 py-1.5 text-[10px] text-white outline-none focus:border-white/30" 
+                        />
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-1">
+                      <label className="text-[8px] text-[#00ffc3] uppercase tracking-widest flex items-center gap-2">
+                        <i className="fas fa-magic"></i> Dynamic AI Directive (Auto-Rewrite)
+                      </label>
+                      <input 
+                        type="text" 
+                        value={customPrompt}
+                        onChange={(e) => setCustomPrompt(e.target.value)}
+                        placeholder="E.g., 'Rewrite this tool to scan for CVE-2024-XXXX and output in JSON format'" 
+                        className="w-full bg-black/50 border border-[#00ffc3]/30 rounded px-2 py-1.5 text-[10px] text-[#00ffc3] outline-none focus:border-[#00ffc3]" 
+                      />
+                    </div>
+                  </>
+                ) : (
+                  <div className="space-y-3">
+                    <div className="space-y-1">
+                      <label className="text-[8px] text-gray-500 uppercase tracking-widest">Manual Command</label>
+                      <input 
+                        type="text" 
+                        value={manualCommand}
+                        onChange={(e) => setManualCommand(e.target.value)}
+                        placeholder="Enter manual command (e.g., --scan --target 192.168.1.1 --aggressive)" 
+                        className="w-full bg-black border border-white/10 rounded px-2 py-1.5 text-[10px] text-white outline-none focus:border-white/30" 
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[8px] text-gray-500 uppercase tracking-widest">Target Context (Optional)</label>
+                      <input 
+                        type="text" 
+                        value={target}
+                        onChange={(e) => setTarget(e.target.value)}
+                        placeholder="Enter target IP/URL..." 
+                        className="w-full bg-black border border-white/10 rounded px-2 py-1.5 text-[10px] text-white outline-none focus:border-white/30" 
+                      />
+                    </div>
+                  </div>
+                )}
               </>
-            ) : (
-              <div className="space-y-3">
-                <div className="space-y-1">
-                  <label className="text-[8px] text-gray-500 uppercase tracking-widest">Manual Command</label>
-                  <input 
-                    type="text" 
-                    value={manualCommand}
-                    onChange={(e) => setManualCommand(e.target.value)}
-                    placeholder="Enter manual command (e.g., --scan --target 192.168.1.1 --aggressive)" 
-                    className="w-full bg-black border border-white/10 rounded px-2 py-1.5 text-[10px] text-white outline-none focus:border-white/30" 
-                  />
-                </div>
-                <div className="space-y-1">
-                  <label className="text-[8px] text-gray-500 uppercase tracking-widest">Target Context (Optional)</label>
-                  <input 
-                    type="text" 
-                    value={target}
-                    onChange={(e) => setTarget(e.target.value)}
-                    placeholder="Enter target IP/URL..." 
-                    className="w-full bg-black border border-white/10 rounded px-2 py-1.5 text-[10px] text-white outline-none focus:border-white/30" 
-                  />
-                </div>
-              </div>
             )}
           </div>
 
