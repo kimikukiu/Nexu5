@@ -10,7 +10,17 @@ interface SubscriptionProps {
   user: User | null;
 }
 
+interface UserToken {
+  id: string;
+  email: string;
+  plan: 'WEEK' | 'MONTH' | 'YEAR';
+  token: string;
+  expiresAt: string;
+  status: 'ACTIVE' | 'EXPIRED';
+}
+
 export const Subscription: React.FC<SubscriptionProps> = ({ onActivate, addLog, onSwitchToAdmin, user }) => {
+  const [email, setEmail] = useState('');
   const [token, setToken] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -18,23 +28,34 @@ export const Subscription: React.FC<SubscriptionProps> = ({ onActivate, addLog, 
   const handleActivate = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (!email || !token) {
+      setError('MISSING_CREDENTIALS: EMAIL_AND_TOKEN_REQUIRED');
+      return;
+    }
+
     setLoading(true);
     try {
-      // In a real app, you'd verify the token against a 'tokens' collection
-      // For this demo, we'll use a hardcoded valid token pattern or check a mock list
-      const validTokens = ['WHOAMI-PRO-2025', 'WHOAMI-ELITE-999', 'WHOAMI-MASTER-001'];
+      // Get tokens from localStorage (as configured in AdminPanel)
+      const savedTokens: UserToken[] = JSON.parse(localStorage.getItem('whoamisec_user_tokens') || '[]');
       
-      if (validTokens.includes(token)) {
+      // Hardcoded fallback tokens for demo/testing
+      const fallbackTokens = ['WHOAMI-PRO-2025', 'WHOAMI-ELITE-999', 'WHOAMI-MASTER-001'];
+      
+      const foundToken = savedTokens.find(t => t.token === token && t.email.toLowerCase() === email.toLowerCase());
+      const isFallback = fallbackTokens.includes(token);
+
+      if (foundToken || isFallback) {
         if (user) {
           await updateDoc(doc(db, 'users', user.uid), {
             subscriptionStatus: 'active',
-            accessToken: token
+            accessToken: token,
+            email: email // Store the login email
           }).catch(() => {});
         }
         onActivate();
-        addLog(`USER: Subscription activated`, 'success');
+        addLog(`USER: Subscription activated for ${email}`, 'success');
       } else {
-        throw new Error('INVALID_OR_EXPIRED_TOKEN');
+        throw new Error('INVALID_EMAIL_OR_TOKEN_COMBINATION');
       }
     } catch (err: any) {
       setError(err.message || 'ACTIVATION_FAILED');
@@ -82,10 +103,27 @@ export const Subscription: React.FC<SubscriptionProps> = ({ onActivate, addLog, 
         <div className="flex flex-col justify-center space-y-8">
           <div className="text-center md:text-left">
             <h3 className="text-sm font-black text-white uppercase tracking-widest">Activate_Session</h3>
-            <p className="text-[9px] text-gray-600 uppercase mt-1">Enter your access token to initialize the neural link</p>
+            <p className="text-[9px] text-gray-600 uppercase mt-1">Enter your email and access token to initialize the neural link</p>
           </div>
 
-          <form onSubmit={handleActivate} className="space-y-6">
+          <form onSubmit={handleActivate} className="space-y-4">
+            <div className="space-y-2">
+              <label className="text-[10px] text-gray-500 uppercase font-black">User Email</label>
+              <div className="relative">
+                <i className="fas fa-envelope absolute left-3 top-1/2 -translate-y-1/2 text-emerald-500/50"></i>
+                <input 
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full bg-black border border-emerald-500/30 rounded-lg py-3 pl-10 pr-4 text-white outline-none focus:border-emerald-500 transition-all font-mono text-xs"
+                  placeholder="user@example.com"
+                  dir="ltr"
+                  autoFocus
+                  disabled={loading}
+                />
+              </div>
+            </div>
+
             <div className="space-y-2">
               <label className="text-[10px] text-gray-500 uppercase font-black">Access Token</label>
               <div className="relative">
@@ -97,7 +135,6 @@ export const Subscription: React.FC<SubscriptionProps> = ({ onActivate, addLog, 
                   className="w-full bg-black border border-emerald-500/30 rounded-lg py-3 pl-10 pr-4 text-white outline-none focus:border-emerald-500 transition-all font-mono text-xs"
                   placeholder="WHOAMI-XXXX-XXXX"
                   dir="ltr"
-                  autoFocus
                   disabled={loading}
                 />
               </div>
