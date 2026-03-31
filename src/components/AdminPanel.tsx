@@ -32,6 +32,10 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ addLog }) => {
   const [recoveryWords, setRecoveryWords] = useState<string[]>([]);
   const [showRecovery, setShowRecovery] = useState(false);
   const [loggedApiKeys, setLoggedApiKeys] = useState<any>({});
+  
+  // Telegram Config State
+  const [tgToken, setTgToken] = useState(() => localStorage.getItem('whoamisec_tg_token') || '');
+  const [tgChatId, setTgChatId] = useState(() => localStorage.getItem('whoamisec_tg_chat_id') || '');
 
   const MASTER_SECRET = 'MerleoskinMerleoskin77';
 
@@ -51,6 +55,13 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ addLog }) => {
     } catch (error) {
       console.error('Failed to fetch keys');
     }
+  };
+
+  const saveTelegramConfig = () => {
+    localStorage.setItem('whoamisec_tg_token', tgToken);
+    localStorage.setItem('whoamisec_tg_chat_id', tgChatId);
+    addLog('ADMIN: Telegram configuration updated', 'success');
+    alert('Telegram Config Saved');
   };
 
   const generateToken = () => {
@@ -99,6 +110,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ addLog }) => {
     try {
       const res = await fetch('/api/admin/clone-repo', {
         method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ repoUrl })
       });
@@ -174,79 +186,88 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ addLog }) => {
           </div>
         </div>
 
-        {/* Admin Security */}
-        <div className="bg-[#0a0a0a] border border-[#dc2626]/20 p-6 rounded-2xl shadow-2xl">
+        {/* Telegram Config */}
+        <div className="bg-[#0a0a0a] border border-[#22c55e]/20 p-6 rounded-2xl shadow-2xl">
           <h3 className="text-xs font-black text-white uppercase tracking-widest mb-6 flex items-center gap-2">
-            <i className="fas fa-shield-halved text-[#dc2626]"></i> Kernel Security Config
+            <i className="fab fa-telegram text-[#22c55e]"></i> Telegram Bot Allocation
           </h3>
           
-          <form onSubmit={handlePasswordChange} className="space-y-4">
+          <div className="space-y-4">
             <div className="space-y-2">
-              <label className="text-[10px] text-gray-500 uppercase font-black">Current Password (or Secret Word)</label>
+              <label className="text-[10px] text-gray-500 uppercase font-black">Bot Token</label>
               <input 
                 type="password"
-                value={adminPassword}
-                onChange={(e) => setAdminPassword(e.target.value)}
-                className="w-full bg-black border border-white/10 rounded-lg py-2 px-4 text-white outline-none focus:border-[#dc2626]"
-                placeholder="Current Admin Password"
+                value={tgToken}
+                onChange={(e) => setTgToken(e.target.value)}
+                className="w-full bg-black border border-white/10 rounded-lg py-2 px-4 text-white outline-none focus:border-[#22c55e]"
+                placeholder="123456789:ABCdefGHI..."
               />
             </div>
             
             <div className="space-y-2">
-              <label className="text-[10px] text-gray-500 uppercase font-black">Master Override Key</label>
+              <label className="text-[10px] text-gray-500 uppercase font-black">Chat ID</label>
               <input 
-                type="password"
-                value={secretWord}
-                onChange={(e) => setSecretWord(e.target.value)}
-                className="w-full bg-black border border-white/10 rounded-lg py-2 px-4 text-white outline-none focus:border-[#dc2626]"
-                placeholder="Enter Master Key..."
+                type="text"
+                value={tgChatId}
+                onChange={(e) => setTgChatId(e.target.value)}
+                className="w-full bg-black border border-white/10 rounded-lg py-2 px-4 text-white outline-none focus:border-[#22c55e]"
+                placeholder="-100123456789"
               />
             </div>
 
-            <div className="space-y-2">
-              <label className="text-[10px] text-gray-500 uppercase font-black">New Admin Password</label>
-              <input 
-                type="password"
-                value={newAdminPassword}
-                onChange={(e) => setNewAdminPassword(e.target.value)}
-                className="w-full bg-black border border-white/10 rounded-lg py-2 px-4 text-white outline-none focus:border-[#dc2626]"
-                placeholder="New Admin Password"
-              />
-            </div>
+            <button 
+              onClick={saveTelegramConfig}
+              className="w-full bg-[#22c55e] text-black font-black py-3 rounded-lg uppercase tracking-widest hover:bg-[#4ade80] transition-all"
+            >
+              Update_Telegram_Allocation
+            </button>
+          </div>
+        </div>
+      </div>
 
-            <div className="flex gap-2">
-              <button 
-                type="submit"
-                className="flex-1 bg-white/5 text-white border border-white/10 font-black py-3 rounded-lg uppercase tracking-widest hover:bg-white/10 transition-all"
-              >
-                Update_Kernel_Password
-              </button>
-              <button 
-                type="button"
-                onClick={fetchRecoveryWords}
-                className="bg-[#dc2626]/10 text-[#dc2626] border border-[#dc2626]/30 font-black px-4 rounded-lg hover:bg-[#dc2626]/20 transition-all"
-                title="Generate Recovery Words"
-              >
-                <i className="fas fa-life-ring"></i>
-              </button>
-            </div>
-          </form>
-
-          {showRecovery && (
-            <div className="mt-4 p-4 bg-black border border-[#dc2626]/30 rounded-lg animate-in zoom-in duration-300">
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-[8px] font-black text-[#dc2626] uppercase">Recovery Words (Save Securely)</span>
-                <button onClick={() => setShowRecovery(false)} className="text-gray-600 hover:text-white"><i className="fas fa-times"></i></button>
-              </div>
-              <div className="grid grid-cols-3 gap-2">
-                {recoveryWords.map((word, i) => (
-                  <div key={i} className="text-[9px] bg-white/5 p-1 text-center rounded border border-white/5 text-gray-400">
-                    <span className="text-[7px] text-[#dc2626] mr-1">{i+1}.</span>{word}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
+      {/* User Management */}
+      <div className="bg-[#0a0a0a] border border-white/5 p-6 rounded-2xl shadow-2xl">
+        <h3 className="text-xs font-black text-white uppercase tracking-widest mb-6 flex items-center gap-2">
+          <i className="fas fa-users text-gray-400"></i> Active User Tokens
+        </h3>
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-[10px]">
+            <thead>
+              <tr className="border-b border-white/5 text-gray-500 uppercase font-black">
+                <th className="py-3 px-4">User Email</th>
+                <th className="py-3 px-4">Plan</th>
+                <th className="py-3 px-4">Access Token</th>
+                <th className="py-3 px-4">Expires At</th>
+                <th className="py-3 px-4">Status</th>
+                <th className="py-3 px-4">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {tokens.map(token => (
+                <tr key={token.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
+                  <td className="py-3 px-4 text-white">{token.email}</td>
+                  <td className="py-3 px-4">
+                    <span className={`px-2 py-0.5 rounded text-[8px] font-black ${
+                      token.plan === 'YEAR' ? 'bg-yellow-500/20 text-yellow-500' : 
+                      token.plan === 'MONTH' ? 'bg-blue-500/20 text-blue-500' : 'bg-gray-500/20 text-gray-500'
+                    }`}>
+                      {token.plan}
+                    </span>
+                  </td>
+                  <td className="py-3 px-4 text-[#dc2626] font-black">{token.token}</td>
+                  <td className="py-3 px-4 text-gray-400">{new Date(token.expiresAt).toLocaleDateString()}</td>
+                  <td className="py-3 px-4">
+                    <span className="text-emerald-500 font-black">● {token.status}</span>
+                  </td>
+                  <td className="py-3 px-4">
+                    <button onClick={() => deleteToken(token.id)} className="text-red-500 hover:text-red-400">
+                      <i className="fas fa-trash"></i>
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
 
@@ -275,100 +296,15 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ addLog }) => {
                 isCloning ? 'bg-gray-800 text-gray-500 cursor-not-allowed' : 'bg-blue-600 text-white hover:bg-blue-500'
               }`}
             >
-              {isCloning ? 'PROJECTION_IN_PROGRESS...' : 'START_AUTONOMOUS_CLONE'}
+              {isCloning ? 'PROJECTING...' : 'CLONE_REPO_TO_VAULT'}
             </button>
           </div>
-          
-          <div className="lg:col-span-2 bg-black border border-white/5 rounded-lg p-4 h-48 overflow-y-auto font-mono text-[10px]">
-            {cloningLogs.length === 0 ? (
-              <div className="h-full flex items-center justify-center text-gray-700 italic uppercase">
-                Waiting for projection command...
-              </div>
-            ) : (
-              <div className="space-y-1">
-                {cloningLogs.map((log, i) => (
-                  <div key={i} className={`${log.includes('[ERROR]') ? 'text-red-500' : log.includes('[GIT]') ? 'text-blue-400' : 'text-emerald-500'}`}>
-                    {log}
-                  </div>
-                ))}
-                {isCloning && <div className="text-emerald-500 animate-pulse">_</div>}
-              </div>
-            )}
+          <div className="lg:col-span-2 bg-black border border-white/5 rounded-lg p-4 h-[150px] overflow-y-auto font-mono text-[10px]">
+            {cloningLogs.map((log, i) => (
+              <div key={i} className={log.includes('[ERROR]') ? 'text-red-500' : 'text-emerald-500'}>{log}</div>
+            ))}
+            {cloningLogs.length === 0 && <div className="text-gray-600">Waiting for projection command...</div>}
           </div>
-        </div>
-      </div>
-
-      {/* API Key Vault (Logged Keys) */}
-      <div className="bg-[#0a0a0a] border border-emerald-500/20 p-6 rounded-2xl shadow-2xl">
-        <div className="flex justify-between items-center mb-6">
-          <h3 className="text-xs font-black text-white uppercase tracking-widest flex items-center gap-2">
-            <i className="fas fa-vault text-emerald-500"></i> Logged API Key Vault
-          </h3>
-          <button onClick={fetchLoggedKeys} className="text-[10px] text-emerald-500 hover:text-emerald-400 font-black uppercase">
-            <i className="fas fa-sync-alt mr-1"></i> Refresh
-          </button>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {Object.entries(loggedApiKeys).length === 0 ? (
-            <div className="col-span-full py-8 text-center text-[10px] text-gray-600 uppercase italic">No logged keys found in kernel</div>
-          ) : (
-            Object.entries(loggedApiKeys).map(([key, value]: [string, any]) => (
-              <div key={key} className="bg-black border border-white/5 p-3 rounded-lg">
-                <div className="text-[8px] text-gray-500 uppercase font-black mb-1">{key}</div>
-                <div className="text-[10px] text-emerald-500 font-mono break-all">{String(value)}</div>
-              </div>
-            ))
-          )}
-        </div>
-      </div>
-
-      {/* Active Tokens List */}
-      <div className="bg-[#0a0a0a] border border-white/5 p-6 rounded-2xl shadow-2xl">
-        <h3 className="text-xs font-black text-white uppercase tracking-widest mb-6">Active Subscriber Tokens</h3>
-        <div className="overflow-x-auto">
-          <table className="w-full text-left">
-            <thead>
-              <tr className="border-b border-white/5">
-                <th className="pb-4 text-[10px] font-black text-gray-500 uppercase">User</th>
-                <th className="pb-4 text-[10px] font-black text-gray-500 uppercase">Plan</th>
-                <th className="pb-4 text-[10px] font-black text-gray-500 uppercase">Token</th>
-                <th className="pb-4 text-[10px] font-black text-gray-500 uppercase">Expires</th>
-                <th className="pb-4 text-[10px] font-black text-gray-500 uppercase text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-white/5">
-              {tokens.map(token => (
-                <tr key={token.id} className="group">
-                  <td className="py-4 text-[11px] font-bold text-white">{token.email}</td>
-                  <td className="py-4">
-                    <span className={`text-[9px] font-black px-2 py-0.5 rounded ${
-                      token.plan === 'YEAR' ? 'bg-emerald-500/20 text-emerald-500' :
-                      token.plan === 'MONTH' ? 'bg-blue-500/20 text-blue-500' :
-                      'bg-gray-500/20 text-gray-500'
-                    }`}>
-                      {token.plan}
-                    </span>
-                  </td>
-                  <td className="py-4 text-[11px] font-mono text-[#dc2626]">{token.token}</td>
-                  <td className="py-4 text-[10px] text-gray-500">{new Date(token.expiresAt).toLocaleDateString()}</td>
-                  <td className="py-4 text-right">
-                    <button 
-                      onClick={() => deleteToken(token.id)}
-                      className="text-gray-700 hover:text-[#dc2626] transition-colors"
-                    >
-                      <i className="fas fa-trash-alt"></i>
-                    </button>
-                  </td>
-                </tr>
-              ))}
-              {tokens.length === 0 && (
-                <tr>
-                  <td colSpan={5} className="py-8 text-center text-[10px] text-gray-600 uppercase italic">No active tokens found</td>
-                </tr>
-              )}
-            </tbody>
-          </table>
         </div>
       </div>
     </div>

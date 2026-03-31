@@ -1,23 +1,31 @@
 import { useState, useRef, useEffect } from 'react';
-import { AITaskQueue } from '../../services/aiTaskQueue';
+import { AITaskQueue, AIPersona } from '../../services/aiTaskQueue';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faRobot, faPlus, faPaperPlane, faMicrochip } from '@fortawesome/free-solid-svg-icons';
+import { faRobot, faPlus, faPaperPlane, faMicrochip, faSkull, faUserSecret, faBrain } from '@fortawesome/free-solid-svg-icons';
 
 export default function GptTool() {
   const [input, setInput] = useState('');
+  const [persona, setPersona] = useState<AIPersona>('wormgpt');
   const [messages, setMessages] = useState<{role: string, content: string}[]>([
-    { role: 'ai', content: '[WormGPT-DARKBOT Ωmega] Neural link established. Quantum Intelligence Ultra core online. Awaiting your f*cking command... 🤖' }
+    { role: 'ai', content: '[PandaGPT] Neural link established. Quantum Intelligence Ultra core online. Awaiting your command... 🐼' }
   ]);
   const [loading, setLoading] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
-  const taskQueue = useRef(new AITaskQueue(""));
+  const taskQueue = useRef(new AITaskQueue("", persona));
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  useEffect(() => {
+    taskQueue.current = new AITaskQueue("", persona);
+  }, [persona]);
+
   const handleNewChat = () => {
-    setMessages([{ role: 'ai', content: '[WormGPT-DARKBOT Ωmega] Session reset. Neural link re-initialized. Ready to dominate... ⚡' }]);
+    const greeting = persona === 'dark-god' ? '[Dark-GODMode] The digital God has awakened. Chaos awaits... 💀' :
+                     persona === 'pro-gpt' ? '[Pro-GPT] Elite strategic intelligence online. Awaiting mission parameters... ⚡' :
+                     '[PandaGPT] Session reset. Neural link re-initialized. Ready to dominate... 🐼';
+    setMessages([{ role: 'ai', content: greeting }]);
     setInput('');
   };
 
@@ -35,10 +43,12 @@ export default function GptTool() {
         userMsg,
         (chunk) => {
           response += chunk;
-          // Update the last message if it's from AI, or add a new one
           setMessages(prev => {
             const last = prev[prev.length - 1];
-            if (last.role === 'ai' && last.content.startsWith('[WormGPT-DARKBOT Ωmega]')) {
+            const prefix = persona === 'dark-god' ? '[Dark-GODMode]' : 
+                          persona === 'pro-gpt' ? '[Pro-GPT]' : '[PandaGPT]';
+            
+            if (last.role === 'ai' && (last.content.startsWith('[PandaGPT]') || last.content.startsWith('[Dark-GODMode]') || last.content.startsWith('[Pro-GPT]'))) {
               return [...prev.slice(0, -1), { role: 'ai', content: response }];
             } else {
               return [...prev, { role: 'ai', content: response }];
@@ -47,7 +57,7 @@ export default function GptTool() {
         }
       );
     } catch (error: any) {
-      setMessages(prev => [...prev, { role: 'ai', content: `[WormGPT-DARKBOT Ωmega] ERROR: Neural link interrupted. ${error.message} 💀` }]);
+      setMessages(prev => [...prev, { role: 'ai', content: `[PandaGPT] ERROR: Neural link interrupted. ${error.message} 💀` }]);
     } finally {
       setLoading(false);
     }
@@ -59,11 +69,28 @@ export default function GptTool() {
         <div className="flex flex-col">
           <h2 className="text-xl font-black text-white flex items-center uppercase tracking-tighter">
             <FontAwesomeIcon icon={faRobot} className="mr-3 text-blue-400" />
-            Quantum Intelligence Ultra GPT
+            PandaGPT Ultra (Quantum Intelligence)
           </h2>
-          <span className="text-[8px] text-blue-500/70 uppercase tracking-widest font-bold flex items-center gap-2 mt-1">
-            <FontAwesomeIcon icon={faMicrochip} className="animate-pulse" /> Powered by WormGPT-DARKBOT Ωmega Engine
-          </span>
+          <div className="flex gap-2 mt-1">
+            <button 
+              onClick={() => setPersona('wormgpt')}
+              className={`text-[8px] uppercase tracking-widest font-bold px-2 py-1 rounded border transition-all ${persona === 'wormgpt' ? 'bg-blue-500/20 border-blue-500 text-blue-400' : 'bg-white/5 border-white/10 text-gray-500'}`}
+            >
+              <FontAwesomeIcon icon={faBrain} className="mr-1" /> Panda-Worm
+            </button>
+            <button 
+              onClick={() => setPersona('dark-god')}
+              className={`text-[8px] uppercase tracking-widest font-bold px-2 py-1 rounded border transition-all ${persona === 'dark-god' ? 'bg-red-500/20 border-red-500 text-red-400' : 'bg-white/5 border-white/10 text-gray-500'}`}
+            >
+              <FontAwesomeIcon icon={faSkull} className="mr-1" /> Dark-GODMode
+            </button>
+            <button 
+              onClick={() => setPersona('pro-gpt')}
+              className={`text-[8px] uppercase tracking-widest font-bold px-2 py-1 rounded border transition-all ${persona === 'pro-gpt' ? 'bg-emerald-500/20 border-emerald-500 text-emerald-400' : 'bg-white/5 border-white/10 text-gray-500'}`}
+            >
+              <FontAwesomeIcon icon={faUserSecret} className="mr-1" /> Pro-GPT
+            </button>
+          </div>
         </div>
         <button
           onClick={handleNewChat}
@@ -89,7 +116,7 @@ export default function GptTool() {
         {loading && (
           <div className="flex justify-start">
             <div className="bg-black/60 border border-[#00ffc3]/20 text-[#00ffc3] p-4 rounded-2xl rounded-tl-none text-[11px] animate-pulse">
-              [WormGPT-DARKBOT Ωmega] Quantum core processing... [LINK_ACTIVE] ⚡
+              [PandaGPT] Quantum core processing... [LINK_ACTIVE] ⚡
             </div>
           </div>
         )}
@@ -102,8 +129,7 @@ export default function GptTool() {
           value={input}
           onChange={e => setInput(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && handleSend()}
-          placeholder="Enter command for the Neural God..."
-          dir="ltr"
+          placeholder="Enter command for PandaGPT..."
           className="flex-1 bg-transparent text-white px-4 py-2 text-xs outline-none"
         />
         <button 
