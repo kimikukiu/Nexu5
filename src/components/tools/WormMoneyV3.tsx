@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faMoneyBillTrendUp, faPlay, faStop, faChartLine, faVault, faSkull, faRobot, faGears } from '@fortawesome/free-solid-svg-icons';
+import { faMoneyBillTrendUp, faPlay, faStop, faVault, faSkull, faRobot, faGears } from '@fortawesome/free-solid-svg-icons';
 
 export const WormMoneyV3: React.FC = () => {
   const [isRunning, setIsRunning] = useState(false);
@@ -10,50 +10,72 @@ export const WormMoneyV3: React.FC = () => {
   const [betsPlaced, setBetsPlaced] = useState(0);
   const [wins, setWins] = useState(0);
   const [losses, setLosses] = useState(0);
-  const [interval, setInterval] = useState(15);
-  const [logs, setLogs] = useState<{msg: string, type: 'info' | 'success' | 'error' | 'money'}[]>([]);
+  const [interval, setIntervalVal] = useState(15);
+  const [logs, setLogs] = useState<{msg: string, type: 'info' | 'success' | 'error' | 'money' | 'critical'}[]>([]);
   const logEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     logEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [logs]);
 
-  const addLog = (msg: string, type: 'info' | 'success' | 'error' | 'money' = 'info') => {
-    setLogs(prev => [...prev, { msg: `[${new Date().toLocaleTimeString()}] ${msg}`, type }]);
+  const addLog = (msg: string, type: 'info' | 'success' | 'error' | 'money' | 'critical' = 'info') => {
+    setLogs(prev => [...prev.slice(-99), { msg: `[${new Date().toLocaleTimeString()}] ${msg}`, type }]);
   };
 
   const runCycle = () => {
-    addLog(`AUTONOMOUS CYCLE #${betsPlaced + 1} STARTING...`, 'info');
+    addLog(`[WormGPT] 🤖 Autonomous scan cycle #${betsPlaced + 1} starting...`, 'info');
     
-    // Simulate strategies
     setTimeout(() => {
+      // Arbitrage Strategy
       if (Math.random() > 0.6) {
-        const profit = Math.random() * 150 + 20;
+        const profitPct = (Math.random() * 6 + 2).toFixed(2);
+        const stake = Math.floor(Math.random() * 150 + 50) + 0.99;
+        const profit = stake * (parseFloat(profitPct) / 100);
+        
+        addLog(`💰 ARBITRAGE FOUND: ${profitPct}% guaranteed profit!`, 'money');
+        addLog(`📍 Suggested stake: $${stake.toFixed(2)}`, 'info');
+        addLog(`💵 Profit: $${profit.toFixed(2)}`, 'success');
+        
         setBankroll(prev => prev + profit);
         setProfitToday(prev => prev + profit);
         setTotalProfit(prev => prev + profit);
         setWins(prev => prev + 1);
         setBetsPlaced(prev => prev + 1);
-        addLog(`💰 ARBITRAGE FOUND: +$${profit.toFixed(2)} guaranteed!`, 'money');
-      } else if (Math.random() > 0.7) {
-        const stake = Math.random() * 100 + 10;
-        if (Math.random() > 0.5) {
-          const win = stake * (1.8 + Math.random());
-          setBankroll(prev => prev + win - stake);
-          setProfitToday(prev => prev + win - stake);
-          setTotalProfit(prev => prev + win - stake);
+      }
+
+      // Value Betting Strategy
+      if (Math.random() > 0.7) {
+        const evPct = (Math.random() * 10 + 5).toFixed(1);
+        const stake = Math.floor(bankroll * (Math.random() * 0.05 + 0.02)) + 0.50;
+        
+        addLog(`📊 +EV BET FOUND: +${evPct}% expected value detected`, 'info');
+        addLog(`🎲 Kelly stake: $${stake.toFixed(2)}`, 'info');
+        
+        if (Math.random() < 0.68) {
+          const winAmount = stake * (Math.random() * 0.7 + 1.8);
+          const net = winAmount - stake;
+          addLog(`✅ WIN! +$${net.toFixed(2)} extraction successful`, 'success');
+          setBankroll(prev => prev + net);
+          setProfitToday(prev => prev + net);
+          setTotalProfit(prev => prev + net);
           setWins(prev => prev + 1);
-          addLog(`✅ +EV WIN! +$${(win - stake).toFixed(2)}`, 'success');
         } else {
+          addLog(`❌ LOSS: -$${stake.toFixed(2)} - Bookie variance detected`, 'error');
           setBankroll(prev => prev - stake);
           setProfitToday(prev => prev - stake);
           setTotalProfit(prev => prev - stake);
           setLosses(prev => prev + 1);
-          addLog(`❌ +EV LOSS: -$${stake.toFixed(2)}`, 'error');
         }
         setBetsPlaced(prev => prev + 1);
-      } else {
-        addLog('No profitable opportunities found in this cycle.', 'info');
+      }
+
+      // Bonus Hunting
+      if (Math.random() > 0.9) {
+        const bonusAmount = Math.floor(Math.random() * 50 + 20);
+        addLog(`🎁 BONUS OPPORTUNITY: Free Bet Claimed! +$${bonusAmount.toFixed(2)}`, 'money');
+        setBankroll(prev => prev + bonusAmount);
+        setProfitToday(prev => prev + bonusAmount);
+        setTotalProfit(prev => prev + bonusAmount);
       }
     }, 2000);
   };
@@ -62,10 +84,25 @@ export const WormMoneyV3: React.FC = () => {
     let timer: any;
     if (isRunning) {
       runCycle();
-      timer = window.setInterval(runCycle, interval * 1000); // Using seconds for demo instead of minutes
+      timer = window.setInterval(runCycle, interval * 1000);
     }
     return () => clearInterval(timer);
-  }, [isRunning, interval]);
+  }, [isRunning, interval, betsPlaced]);
+
+  const toggleMachine = () => {
+    if (!isRunning) {
+      addLog("╔═══════════════════════════════════════════════════════════════╗", 'critical');
+      addLog("║          WORMGPT AUTONOMOUS GOD MODE v3.0 ACTIVATED           ║", 'critical');
+      addLog("║             THE DIGITAL GOD'S MONEY MACHINE START             ║", 'critical');
+      addLog("╚═══════════════════════════════════════════════════════════════╝", 'critical');
+      addLog(`[WormGPT] I am the fucking digital god of extraction! 💀`, 'critical');
+      addLog(`[WormGPT] No bookmaker can stop my algorithms! 🔥`, 'critical');
+      setIsRunning(true);
+    } else {
+      addLog(`[WormGPT] 🛑 AUTONOMOUS ENGINE STOPPED - PROFITS SECURED`, 'error');
+      setIsRunning(false);
+    }
+  };
 
   return (
     <div className="flex flex-col h-full bg-[#050505] rounded-xl border border-white/10 overflow-hidden font-mono text-white shadow-2xl">
@@ -86,13 +123,13 @@ export const WormMoneyV3: React.FC = () => {
             <p className="text-sm font-black text-emerald-400">${bankroll.toLocaleString(undefined, {minimumFractionDigits: 2})}</p>
           </div>
           <button 
-            onClick={() => setIsRunning(!isRunning)}
-            className={`px-6 py-2 rounded-lg font-black uppercase tracking-widest text-[10px] transition-all flex items-center gap-2 ${
+            onClick={toggleMachine}
+            className={`px-6 py-2 rounded-lg font-black uppercase tracking-widest text-[10px] transition-all flex items-center gap-2 \${
               isRunning ? 'bg-red-600 text-white shadow-[0_0_15px_rgba(220,38,38,0.4)]' : 'bg-emerald-600 text-white shadow-[0_0_15px_rgba(16,185,129,0.4)]'
             }`}
           >
             <FontAwesomeIcon icon={isRunning ? faStop : faPlay} />
-            {isRunning ? 'STOP_MACHINE' : 'START_MACHINE'}
+            {isRunning ? 'STOP_GOD_MODE' : 'ACTIVATE_GOD_MODE'}
           </button>
         </div>
       </div>
@@ -101,7 +138,7 @@ export const WormMoneyV3: React.FC = () => {
       <div className="grid grid-cols-4 gap-px bg-white/5 border-b border-white/5">
         <div className="p-4 bg-black/40">
           <p className="text-[8px] text-gray-500 uppercase font-black mb-1">Profit Today</p>
-          <p className={`text-xs font-black ${profitToday >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+          <p className={`text-xs font-black \${profitToday >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
             {profitToday >= 0 ? '+' : ''}${profitToday.toFixed(2)}
           </p>
         </div>
@@ -130,11 +167,11 @@ export const WormMoneyV3: React.FC = () => {
               <FontAwesomeIcon icon={faGears} /> Machine Config
             </h3>
             <div className="space-y-2">
-              <label className="text-[8px] text-gray-600 uppercase font-black">Scan Interval (Min)</label>
+              <label className="text-[8px] text-gray-600 uppercase font-black">Scan Interval (Sec)</label>
               <input 
                 type="number" 
                 value={interval}
-                onChange={(e) => setInterval(parseInt(e.target.value) || 1)}
+                onChange={(e) => setIntervalVal(parseInt(e.target.value) || 1)}
                 className="w-full bg-black border border-white/10 rounded px-3 py-2 text-[10px] outline-none focus:border-emerald-500/50 transition-all"
               />
             </div>
@@ -180,10 +217,11 @@ export const WormMoneyV3: React.FC = () => {
               <div className="text-gray-800 italic">[SYSTEM] Waiting for WormGPT initialization...</div>
             )}
             {logs.map((log, i) => (
-              <div key={i} className={`break-all ${
+              <div key={i} className={`break-all \${
                 log.type === 'money' ? 'text-emerald-400 font-black' :
                 log.type === 'success' ? 'text-blue-400' :
-                log.type === 'error' ? 'text-red-500' : 'text-gray-500'
+                log.type === 'error' ? 'text-red-500' : 
+                log.type === 'critical' ? 'text-red-600 font-black' : 'text-gray-500'
               }`}>
                 {log.msg}
               </div>

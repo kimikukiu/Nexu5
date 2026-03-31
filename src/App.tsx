@@ -22,6 +22,8 @@ import { AdminPanel } from './components/AdminPanel';
 import { Subscription } from './components/Subscription';
 import { DynamicToolRenderer } from './components/DynamicToolRenderer';
 import { ToolIndex } from './components/ToolIndex';
+import { WormMoneyV3 } from './components/tools/WormMoneyV3';
+import StarsXKill from './components/tools/StarsXKill';
 import SocialTakeover from './components/SocialTakeover';
 import DroneTakeover from './components/DroneTakeover';
 import MediaCommsTakeover from './components/MediaCommsTakeover';
@@ -243,6 +245,10 @@ export default function App() {
         return <DroneTakeover addLog={addLog} />;
       case AppTab.MEDIA_COMMS_TAKEOVER:
         return <MediaCommsTakeover addLog={addLog} />;
+      case AppTab.WORM_MONEY:
+        return <WormMoneyV3 />;
+      case AppTab.STARSX_KILL:
+        return <StarsXKill />;
       case AppTab.TOOL_INDEX:
         return <ToolIndex setSelectedDynamicTool={setSelectedDynamicTool} setActiveTab={setActiveTab} addLog={addLog} />;
       case AppTab.DYNAMIC_TOOL:

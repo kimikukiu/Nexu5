@@ -15,6 +15,11 @@ interface UserToken {
   status: 'ACTIVE' | 'EXPIRED';
 }
 
+interface PlanConfig {
+  tgToken: string;
+  tgChatId: string;
+}
+
 export const AdminPanel: React.FC<AdminPanelProps> = ({ addLog }) => {
   const [tokens, setTokens] = useState<UserToken[]>(() => {
     const saved = localStorage.getItem('whoamisec_user_tokens');
@@ -33,9 +38,15 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ addLog }) => {
   const [showRecovery, setShowRecovery] = useState(false);
   const [loggedApiKeys, setLoggedApiKeys] = useState<any>({});
   
-  // Telegram Config State
-  const [tgToken, setTgToken] = useState(() => localStorage.getItem('whoamisec_tg_token') || '');
-  const [tgChatId, setTgChatId] = useState(() => localStorage.getItem('whoamisec_tg_chat_id') || '');
+  // Per-Plan Telegram Config
+  const [planConfigs, setPlanConfigs] = useState<Record<string, PlanConfig>>(() => {
+    const saved = localStorage.getItem('whoamisec_plan_configs');
+    return saved ? JSON.parse(saved) : {
+      WEEK: { tgToken: '', tgChatId: '' },
+      MONTH: { tgToken: '', tgChatId: '' },
+      YEAR: { tgToken: '', tgChatId: '' }
+    };
+  });
 
   const MASTER_SECRET = 'MerleoskinMerleoskin77';
 
@@ -44,24 +55,20 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ addLog }) => {
   }, [tokens]);
 
   useEffect(() => {
-    fetchLoggedKeys();
-  }, []);
+    localStorage.setItem('whoamisec_plan_configs', JSON.stringify(planConfigs));
+  }, [planConfigs]);
 
-  const fetchLoggedKeys = async () => {
-    try {
-      const res = await fetch('/api/config/keys');
-      const data = await res.json();
-      setLoggedApiKeys(data);
-    } catch (error) {
-      console.error('Failed to fetch keys');
-    }
+  const updatePlanConfig = (plan: string, field: keyof PlanConfig, value: string) => {
+    setPlanConfigs(prev => ({
+      ...prev,
+      [plan]: { ...prev[plan], [field]: value }
+    }));
   };
 
-  const saveTelegramConfig = () => {
-    localStorage.setItem('whoamisec_tg_token', tgToken);
-    localStorage.setItem('whoamisec_tg_chat_id', tgChatId);
-    addLog('ADMIN: Telegram configuration updated', 'success');
-    alert('Telegram Config Saved');
+  const savePlanConfigs = () => {
+    localStorage.setItem('whoamisec_plan_configs', JSON.stringify(planConfigs));
+    addLog('ADMIN: All plan configurations updated', 'success');
+    alert('Plan Configurations Saved');
   };
 
   const generateToken = () => {
@@ -111,7 +118,6 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ addLog }) => {
       const res = await fetch('/api/admin/clone-repo', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ repoUrl })
       });
       const data = await res.json();
@@ -123,18 +129,6 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ addLog }) => {
       setCloningLogs(prev => [...prev, '[ERROR] Projection failed. Connection lost.']);
     } finally {
       setIsCloning(false);
-    }
-  };
-
-  const fetchRecoveryWords = async () => {
-    try {
-      const res = await fetch('/api/admin/recovery-words');
-      const data = await res.json();
-      setRecoveryWords(data.words);
-      setShowRecovery(true);
-      addLog('ADMIN: Recovery words generated', 'info');
-    } catch (error) {
-      console.error('Failed to fetch recovery words');
     }
   };
 
@@ -186,40 +180,46 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ addLog }) => {
           </div>
         </div>
 
-        {/* Telegram Config */}
+        {/* Telegram Config Per Plan */}
         <div className="bg-[#0a0a0a] border border-[#22c55e]/20 p-6 rounded-2xl shadow-2xl">
           <h3 className="text-xs font-black text-white uppercase tracking-widest mb-6 flex items-center gap-2">
-            <i className="fab fa-telegram text-[#22c55e]"></i> Telegram Bot Allocation
+            <i className="fab fa-telegram text-[#22c55e]"></i> Telegram Bot Allocation (Per Plan)
           </h3>
           
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <label className="text-[10px] text-gray-500 uppercase font-black">Bot Token</label>
-              <input 
-                type="password"
-                value={tgToken}
-                onChange={(e) => setTgToken(e.target.value)}
-                className="w-full bg-black border border-white/10 rounded-lg py-2 px-4 text-white outline-none focus:border-[#22c55e]"
-                placeholder="123456789:ABCdefGHI..."
-              />
-            </div>
+          <div className="space-y-6 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+            {['WEEK', 'MONTH', 'YEAR'].map(plan => (
+              <div key={plan} className="p-4 border border-white/5 rounded-xl bg-white/5">
+                <h4 className="text-[10px] font-black text-[#22c55e] mb-3 uppercase tracking-tighter">{plan} Plan Bot</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                    <label className="text-[8px] text-gray-600 uppercase font-black">Bot Token</label>
+                    <input 
+                      type="password"
+                      value={planConfigs[plan].tgToken}
+                      onChange={(e) => updatePlanConfig(plan, 'tgToken', e.target.value)}
+                      className="w-full bg-black border border-white/10 rounded px-3 py-2 text-[10px] text-white outline-none focus:border-[#22c55e]"
+                      placeholder="12345:ABC..."
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[8px] text-gray-600 uppercase font-black">Chat ID</label>
+                    <input 
+                      type="text"
+                      value={planConfigs[plan].tgChatId}
+                      onChange={(e) => updatePlanConfig(plan, 'tgChatId', e.target.value)}
+                      className="w-full bg-black border border-white/10 rounded px-3 py-2 text-[10px] text-white outline-none focus:border-[#22c55e]"
+                      placeholder="-100..."
+                    />
+                  </div>
+                </div>
+              </div>
+            ))}
             
-            <div className="space-y-2">
-              <label className="text-[10px] text-gray-500 uppercase font-black">Chat ID</label>
-              <input 
-                type="text"
-                value={tgChatId}
-                onChange={(e) => setTgChatId(e.target.value)}
-                className="w-full bg-black border border-white/10 rounded-lg py-2 px-4 text-white outline-none focus:border-[#22c55e]"
-                placeholder="-100123456789"
-              />
-            </div>
-
             <button 
-              onClick={saveTelegramConfig}
-              className="w-full bg-[#22c55e] text-black font-black py-3 rounded-lg uppercase tracking-widest hover:bg-[#4ade80] transition-all"
+              onClick={savePlanConfigs}
+              className="w-full bg-[#22c55e] text-black font-black py-3 rounded-lg uppercase tracking-widest hover:bg-[#4ade80] transition-all sticky bottom-0 shadow-2xl"
             >
-              Update_Telegram_Allocation
+              Update_All_Allocations
             </button>
           </div>
         </div>
@@ -270,43 +270,8 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ addLog }) => {
           </table>
         </div>
       </div>
-
-      {/* GitHub Autonomous Projection */}
-      <div className="bg-[#0a0a0a] border border-blue-500/20 p-6 rounded-2xl shadow-2xl">
-        <h3 className="text-xs font-black text-white uppercase tracking-widest mb-6 flex items-center gap-2">
-          <i className="fab fa-github text-blue-500"></i> WormGPT Omega Autonomous Projection
-        </h3>
-        
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-1 space-y-4">
-            <div className="space-y-2">
-              <label className="text-[10px] text-gray-500 uppercase font-black">Repository URL</label>
-              <input 
-                type="text"
-                value={repoUrl}
-                onChange={(e) => setRepoUrl(e.target.value)}
-                className="w-full bg-black border border-white/10 rounded-lg py-2 px-4 text-white outline-none focus:border-blue-500"
-                placeholder="https://github.com/user/repo"
-              />
-            </div>
-            <button 
-              onClick={handleCloneRepo}
-              disabled={isCloning}
-              className={`w-full font-black py-3 rounded-lg uppercase tracking-widest transition-all ${
-                isCloning ? 'bg-gray-800 text-gray-500 cursor-not-allowed' : 'bg-blue-600 text-white hover:bg-blue-500'
-              }`}
-            >
-              {isCloning ? 'PROJECTING...' : 'CLONE_REPO_TO_VAULT'}
-            </button>
-          </div>
-          <div className="lg:col-span-2 bg-black border border-white/5 rounded-lg p-4 h-[150px] overflow-y-auto font-mono text-[10px]">
-            {cloningLogs.map((log, i) => (
-              <div key={i} className={log.includes('[ERROR]') ? 'text-red-500' : 'text-emerald-500'}>{log}</div>
-            ))}
-            {cloningLogs.length === 0 && <div className="text-gray-600">Waiting for projection command...</div>}
-          </div>
-        </div>
-      </div>
     </div>
   );
 };
+
+export default AdminPanel;

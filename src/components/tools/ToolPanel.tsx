@@ -66,7 +66,7 @@ const TOOLS: Tool[] = [
   }
 ];
 
-export const ToolPanel: React.FC = () => {
+const ToolPanel: React.FC = () => {
   const [activeTool, setActiveTool] = useState<Tool | null>(null);
   const [category, setCategory] = useState<Tool['category'] | 'ALL'>('ALL');
 
@@ -144,3 +144,5 @@ export const ToolPanel: React.FC = () => {
     </div>
   );
 };
+
+export default ToolPanel;

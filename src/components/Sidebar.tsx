@@ -34,6 +34,8 @@ const Sidebar: React.FC<SidebarProps> = ({
     { id: AppTab.SQL_INJECT, label: 'Payload Vault', icon: 'fa-database' },
     { id: AppTab.NETWORK, label: 'Attack Console', icon: 'fa-satellite-dish' },
     { id: AppTab.ZXCDDOS, label: 'ZxCDDoS', icon: 'fa-bolt' },
+    { id: AppTab.STARSX_KILL, label: 'StarsX Kill', icon: 'fa-skull-crossbones' },
+    { id: AppTab.WORM_MONEY, label: 'WormMoney V3', icon: 'fa-money-bill-trend-up' },
     { id: AppTab.IDE_TOOL, label: 'Quantum IDE', icon: 'fa-code' },
     { id: AppTab.BOTNET_CORE, label: 'Zombie Swarm', icon: 'fa-users-rays' },
     { id: AppTab.SYSTEM_CORE_TOOLS, label: 'System Core Repos', icon: 'fa-folder-tree' },
