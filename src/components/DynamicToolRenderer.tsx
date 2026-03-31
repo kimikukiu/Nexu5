@@ -8,7 +8,8 @@ interface DynamicToolRendererProps {
 }
 
 export const DynamicToolRenderer: React.FC<DynamicToolRendererProps> = ({ tool, addLog }) => {
-  const [activeModule, setActiveModule] = useState(tool.modules[0]?.id);
+  const safeModules = tool?.modules || [];
+  const [activeModule, setActiveModule] = useState(safeModules[0]?.id || 'default');
   const [isExecuting, setIsExecuting] = useState(false);
   const [executionLogs, setExecutionLogs] = useState<string[]>([]);
   const [target, setTarget] = useState('');
@@ -25,7 +26,7 @@ export const DynamicToolRenderer: React.FC<DynamicToolRendererProps> = ({ tool, 
     setShowTerminal(true);
     addLog(`DYNAMIC: Initializing ${tool.name} - Module: ${activeModule}`, 'info');
     
-    const steps = tool.autonomousConfig?.executionSteps || [
+    const steps = tool?.autonomousConfig?.executionSteps || [
       `[EXEC] Initializing neural kernel for ${tool.name}...`,
       `[EXEC] Loading module: ${activeModule}`,
       `[EXEC] Setting neural jitter to 0.85...`,
@@ -78,7 +79,7 @@ export const DynamicToolRenderer: React.FC<DynamicToolRendererProps> = ({ tool, 
         {/* Module Sidebar */}
         <div className="w-64 border-r border-white/5 bg-black/20 p-4 space-y-2 overflow-y-auto custom-scroll">
           <h3 className="text-[10px] font-black text-gray-600 uppercase tracking-widest mb-4 px-2">Available Modules</h3>
-          {tool.modules.map(mod => (
+          {safeModules.map(mod => (
             <button
               key={mod.id}
               onClick={() => setActiveModule(mod.id)}
@@ -168,7 +169,7 @@ export const DynamicToolRenderer: React.FC<DynamicToolRendererProps> = ({ tool, 
               <div className="space-y-3">
                 <div className="p-3 bg-black/40 rounded-lg border border-white/5">
                   <p className="text-[10px] text-gray-400 leading-relaxed italic">
-                    "I have analyzed the current target. Based on the {tool.name} repository logic, I recommend using the {tool.modules[0]?.name} module with a neural jitter of 0.85 to bypass local IDS."
+                    "I have analyzed the current target. Based on the {tool?.name} repository logic, I recommend using the {safeModules[0]?.name} module with a neural jitter of 0.85 to bypass local IDS."
                   </p>
                 </div>
                 <div className="flex gap-2">

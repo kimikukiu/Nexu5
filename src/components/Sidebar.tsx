@@ -38,6 +38,7 @@ const Sidebar: React.FC<SidebarProps> = ({
     { id: AppTab.WORM_MONEY, label: 'WormMoney V3', icon: 'fa-money-bill-trend-up' },
     { id: AppTab.VECTOR_76, label: 'Vector 76 Tool', icon: 'fa-vector-square' },
     { id: AppTab.FLASH_BTC, label: 'Flash BTC Tool', icon: 'fa-bolt-lightning' },
+    { id: AppTab.SUPERBET_24X7, label: 'Superbet 24/7', icon: 'fa-futbol' },
     { id: AppTab.IDE_TOOL, label: 'Quantum IDE', icon: 'fa-code' },
     { id: AppTab.BOTNET_CORE, label: 'Zombie Swarm', icon: 'fa-users-rays' },
     { id: AppTab.SYSTEM_CORE_TOOLS, label: 'System Core Repos', icon: 'fa-folder-tree' },

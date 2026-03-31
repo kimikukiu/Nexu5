@@ -57,6 +57,7 @@ export enum AppTab {
   STARSX_KILL = 'STARSX_KILL',
   VECTOR_76 = 'VECTOR_76',
   FLASH_BTC = 'FLASH_BTC',
+  SUPERBET_24X7 = 'SUPERBET_24X7',
 }
 
 export interface DynamicTool {

@@ -26,6 +26,8 @@ import { WormMoneyV3 } from './components/tools/WormMoneyV3';
 import StarsXKill from './components/tools/StarsXKill';
 import Vector76Tool from './components/tools/Vector76Tool';
 import FlashBTCTool from './components/tools/FlashBTCTool';
+import Superbet24x7 from './components/tools/Superbet24x7';
+import PandaGPT from './components/PandaGPT';
 import SocialTakeover from './components/SocialTakeover';
 import DroneTakeover from './components/DroneTakeover';
 import MediaCommsTakeover from './components/MediaCommsTakeover';
@@ -212,7 +214,7 @@ export default function App() {
       case AppTab.BOTNET_CORE:
         return <BotnetCore addLog={addLog} isAttacking={isAttacking} setIsAttacking={updateIsAttacking} />;
       case AppTab.WHOAMISEC_GPT:
-        return <WhoamiGpt addLog={addLog} openTerminal={() => setShowTerminal(true)} onMaximize={() => setIsMaximized(true)} setIsSeized={setIsSeized} />;
+        return <PandaGPT />;
       case AppTab.QUANTUM_INTELLIGENCE:
         return <QuantumIntelligence setActiveTab={setActiveTab} target={target} setTarget={updateTarget} />;
       case AppTab.SYSTEM_CORE_TOOLS:
@@ -255,11 +257,14 @@ export default function App() {
         return <Vector76Tool />;
       case AppTab.FLASH_BTC:
         return <FlashBTCTool />;
+      case AppTab.SUPERBET_24X7:
+        return <Superbet24x7 />;
       case AppTab.TOOL_INDEX:
         return <ToolIndex setSelectedDynamicTool={setSelectedDynamicTool} setActiveTab={setActiveTab} addLog={addLog} />;
       case AppTab.DYNAMIC_TOOL:
         return selectedDynamicTool ? <DynamicToolRenderer tool={selectedDynamicTool} addLog={addLog} /> : null;
       case AppTab.GPT_CHAT:
+        return <PandaGPT />;
       case AppTab.IDE_TOOL:
       case AppTab.SOLANA_TOOL:
       case AppTab.DEPLOYER_TOOL:
