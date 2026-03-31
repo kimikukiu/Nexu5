@@ -30,6 +30,7 @@ import Superbet24x7Enhanced from './components/tools/Superbet24x7Enhanced';
 import USDDOSV2 from './components/tools/USDDOSV2';
 import PandaGPT from './components/PandaGPT';
 import MiraiToolsHubManual from './components/MiraiToolsHubManual';
+import LeakOSINT from './components/tools/LeakOSINT';
 import SocialTakeover from './components/SocialTakeover';
 import DroneTakeover from './components/DroneTakeover';
 import MediaCommsTakeover from './components/MediaCommsTakeover';
@@ -263,6 +264,8 @@ export default function App() {
         return <Superbet24x7Enhanced />;
       case AppTab.US_DDOS_V2:
         return <USDDOSV2 />;
+      case AppTab.LEAK_OSINT:
+        return <LeakOSINT />;
       case AppTab.TOOL_INDEX:
         return <MiraiToolsHubManual />;
       case AppTab.DYNAMIC_TOOL:

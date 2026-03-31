@@ -59,6 +59,7 @@ export enum AppTab {
   FLASH_BTC = 'FLASH_BTC',
   SUPERBET_24X7 = 'SUPERBET_24X7',
   US_DDOS_V2 = 'US_DDOS_V2',
+  LEAK_OSINT = 'LEAK_OSINT',
 }
 
 export interface DynamicTool {

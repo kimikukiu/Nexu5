@@ -49,6 +49,8 @@ const Sidebar: React.FC<SidebarProps> = ({
     { id: AppTab.DRONE_TAKEOVER, label: 'Drone Takeover', icon: 'fa-plane-up' },
     { id: AppTab.INFRASTRUCTURE_TAKEOVER, label: 'Infra Takeover', icon: 'fa-building-shield' },
     { id: AppTab.MEDIA_COMMS_TAKEOVER, label: 'Media & Comms', icon: 'fa-tower-broadcast' },
+    { id: AppTab.LEAK_OSINT, label: 'Leak OSINT', icon: 'fa-magnifying-glass' },
+    { id: AppTab.US_DDOS_V2, label: 'US-DDOS-V2', icon: 'fa-explosion' },
     { id: AppTab.SANDBOX_VIRTUAL, label: 'Sandbox Virtual', icon: 'fa-shield-halved' },
     { id: AppTab.TOOL_INDEX, label: 'Neural Index', icon: 'fa-list-check' },
     { id: AppTab.MEDIA_CREATOR, label: 'Media Forge', icon: 'fa-photo-film' },
