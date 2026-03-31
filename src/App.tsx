@@ -10,7 +10,7 @@ import SystemCoreTools from './components/SystemCoreTools';
 import MediaCreators from './components/MediaCreators';
 import SqlInject from './components/SqlInject';
 import Network from './components/Network';
-import ZxCDDoS from './components/ZxCDDoS';
+import { ZxCDDoS } from './components/tools/ZxCDDoS';
 import Settings from './components/Settings';
 import Extractor from './components/Extractor';
 import OsintDashboard from './components/OsintDashboard';
@@ -237,7 +237,7 @@ export default function App() {
       case AppTab.NETWORK:
         return <Network addLog={addLog} target={target} />;
       case AppTab.ZXCDDOS:
-        return <ZxCDDoS addLog={addLog} target={target} />;
+        return <ZxCDDoS />;
       case AppTab.ADMIN_PANEL:
         return isAdminLoggedIn ? <AdminPanel addLog={addLog} /> : (
           <div className="h-full flex items-center justify-center text-red-500 uppercase font-black tracking-widest italic">
