@@ -55,6 +55,8 @@ export enum AppTab {
   MEDIA_COMMS_TAKEOVER = 'MEDIA_COMMS_TAKEOVER',
   WORM_MONEY = 'WORM_MONEY',
   STARSX_KILL = 'STARSX_KILL',
+  VECTOR_76 = 'VECTOR_76',
+  FLASH_BTC = 'FLASH_BTC',
 }
 
 export interface DynamicTool {

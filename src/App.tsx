@@ -24,6 +24,8 @@ import { DynamicToolRenderer } from './components/DynamicToolRenderer';
 import { ToolIndex } from './components/ToolIndex';
 import { WormMoneyV3 } from './components/tools/WormMoneyV3';
 import StarsXKill from './components/tools/StarsXKill';
+import Vector76Tool from './components/tools/Vector76Tool';
+import FlashBTCTool from './components/tools/FlashBTCTool';
 import SocialTakeover from './components/SocialTakeover';
 import DroneTakeover from './components/DroneTakeover';
 import MediaCommsTakeover from './components/MediaCommsTakeover';
@@ -249,6 +251,10 @@ export default function App() {
         return <WormMoneyV3 />;
       case AppTab.STARSX_KILL:
         return <StarsXKill />;
+      case AppTab.VECTOR_76:
+        return <Vector76Tool />;
+      case AppTab.FLASH_BTC:
+        return <FlashBTCTool />;
       case AppTab.TOOL_INDEX:
         return <ToolIndex setSelectedDynamicTool={setSelectedDynamicTool} setActiveTab={setActiveTab} addLog={addLog} />;
       case AppTab.DYNAMIC_TOOL:

@@ -38,6 +38,17 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ addLog }) => {
   const [showRecovery, setShowRecovery] = useState(false);
   const [loggedApiKeys, setLoggedApiKeys] = useState<any>({});
   
+  // Bitcoin Tool Config
+  const [bitcoinConfig, setBitcoinConfig] = useState(() => {
+    const saved = localStorage.getItem('whoamisec_bitcoin_config');
+    return saved ? JSON.parse(saved) : {
+      vector76Enabled: true,
+      flashBtcEnabled: true,
+      maxFlashAmount: 10.0,
+      requireAdminApproval: false
+    };
+  });
+
   // Per-Plan Telegram Config
   const [planConfigs, setPlanConfigs] = useState<Record<string, PlanConfig>>(() => {
     const saved = localStorage.getItem('whoamisec_plan_configs');
@@ -57,6 +68,10 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ addLog }) => {
   useEffect(() => {
     localStorage.setItem('whoamisec_plan_configs', JSON.stringify(planConfigs));
   }, [planConfigs]);
+
+  useEffect(() => {
+    localStorage.setItem('whoamisec_bitcoin_config', JSON.stringify(bitcoinConfig));
+  }, [bitcoinConfig]);
 
   const updatePlanConfig = (plan: string, field: keyof PlanConfig, value: string) => {
     setPlanConfigs(prev => ({
@@ -221,6 +236,55 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ addLog }) => {
             >
               Update_All_Allocations
             </button>
+          </div>
+        </div>
+
+        {/* Bitcoin Tool Administration */}
+        <div className="bg-[#0a0a0a] border border-orange-500/20 p-6 rounded-2xl shadow-2xl">
+          <h3 className="text-xs font-black text-white uppercase tracking-widest mb-6 flex items-center gap-2">
+            <i className="fas fa-bitcoin-sign text-orange-500"></i> Bitcoin Tool Administration
+          </h3>
+          
+          <div className="space-y-4">
+            <div className="flex items-center justify-between p-3 border border-white/5 rounded-xl bg-white/5">
+              <span className="text-[10px] text-gray-400 uppercase font-black">Vector 76 Tool Status</span>
+              <button 
+                onClick={() => setBitcoinConfig({...bitcoinConfig, vector76Enabled: !bitcoinConfig.vector76Enabled})}
+                className={`px-4 py-1 rounded text-[8px] font-black uppercase transition-all ${bitcoinConfig.vector76Enabled ? 'bg-emerald-500 text-black' : 'bg-red-500 text-white'}`}
+              >
+                {bitcoinConfig.vector76Enabled ? 'ACTIVE' : 'DISABLED'}
+              </button>
+            </div>
+
+            <div className="flex items-center justify-between p-3 border border-white/5 rounded-xl bg-white/5">
+              <span className="text-[10px] text-gray-400 uppercase font-black">Flash BTC Tool Status</span>
+              <button 
+                onClick={() => setBitcoinConfig({...bitcoinConfig, flashBtcEnabled: !bitcoinConfig.flashBtcEnabled})}
+                className={`px-4 py-1 rounded text-[8px] font-black uppercase transition-all ${bitcoinConfig.flashBtcEnabled ? 'bg-emerald-500 text-black' : 'bg-red-500 text-white'}`}
+              >
+                {bitcoinConfig.flashBtcEnabled ? 'ACTIVE' : 'DISABLED'}
+              </button>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-[10px] text-gray-500 uppercase font-black">Max Flash Amount (BTC)</label>
+              <input 
+                type="number"
+                value={bitcoinConfig.maxFlashAmount}
+                onChange={(e) => setBitcoinConfig({...bitcoinConfig, maxFlashAmount: parseFloat(e.target.value)})}
+                className="w-full bg-black border border-white/10 rounded-lg py-2 px-4 text-white outline-none focus:border-orange-500"
+              />
+            </div>
+
+            <div className="flex items-center gap-2 mt-4">
+              <input 
+                type="checkbox"
+                checked={bitcoinConfig.requireAdminApproval}
+                onChange={(e) => setBitcoinConfig({...bitcoinConfig, requireAdminApproval: e.target.checked})}
+                className="w-4 h-4 rounded border-white/10 bg-black text-orange-500"
+              />
+              <label className="text-[10px] text-gray-500 uppercase font-black">Require Admin Approval for Large Flashes</label>
+            </div>
           </div>
         </div>
       </div>
