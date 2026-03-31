@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { AITaskQueue } from '../../services/aiTaskQueue';
 import { ManualDdosTool } from './ManualDdosTool';
+import { Terminal } from './Terminal';
+import GptTool from './GptTool';
 
 interface ToolPanelProps {
   title: string;
@@ -78,10 +80,32 @@ const ToolPanel: React.FC<ToolPanelProps> = ({ title, icon, color, description, 
     }
   };
 
-  const isDdosTool = title === 'US-DDOS-V2' || title === 'ufodos';
+  const isDdosTool = title === 'US-DDOS-V2' || title === 'ufodos' || title.includes('DDOS');
+  const isGptTool = title.includes('GPT') || title.includes('AI Master');
+  const isVaultTool = title.includes('KIMIKUKIU') || title.includes('Worm') || title.includes('WHOAMI');
 
   const addManualLog = (message: string, level: 'info' | 'success' | 'warning' | 'error') => {
     setLogs(prev => [...prev, `[${new Date().toLocaleTimeString()}] ${message}`]);
+  };
+
+  const handleTerminalExecute = async (cmd: string) => {
+    setIsRunning(true);
+    setLogs(prev => [...prev, `[${new Date().toLocaleTimeString()}] EXECUTING: ${cmd}`]);
+    
+    // Simulate real script execution
+    const scriptMap: Record<string, string> = {
+      'WormMoney': 'WormMoneyV3.py',
+      'Worm-Destruction': 'Worm-Destruction.py',
+      'SuperBet': 'SuperBet.py',
+      'Apocalypse': 'w-apocalypse.sh',
+      'Ultimate-Exploit': 'ultimate-ai-full.sh'
+    };
+    
+    const script = Object.keys(scriptMap).find(k => title.includes(k)) || 'script.py';
+    
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    setConsoleOutput(prev => prev + `\n[SYSTEM] ${script} initialized...\n[SYSTEM] Parameters accepted: ${cmd}\n[PROCESS] Running manual injection sequence...\n[SUCCESS] Operation finalized.\n`);
+    setIsRunning(false);
   };
 
   return (
@@ -108,59 +132,72 @@ const ToolPanel: React.FC<ToolPanelProps> = ({ title, icon, color, description, 
             onClick={() => setMode('MANUAL')}
             className={`px-3 py-1 text-[8px] font-black uppercase tracking-widest rounded transition-all ${mode === 'MANUAL' ? 'bg-white/10 text-white' : 'text-gray-500 hover:text-gray-300'}`}
           >
-            Manual
+            Manual_Terminal
           </button>
         </div>
       </div>
 
       {/* Main Content */}
       <div className="flex flex-1 overflow-hidden flex-col md:flex-row">
-        {/* Repo Structure (Left) */}
-        <div className="w-full md:w-64 border-r border-white/10 bg-[#050505] flex flex-col">
-          <div className="p-2 border-b border-white/10 bg-black">
-            <span className="text-[8px] font-black text-gray-500 uppercase tracking-widest">Repository Modules</span>
-          </div>
-          <div className="flex-1 overflow-y-auto custom-scroll p-2 space-y-1">
-            {modules.map(mod => (
-              <button
-                key={mod.id}
-                onClick={() => setActiveModule(mod.id)}
-                className={`w-full text-left p-2 rounded border transition-all ${
-                  activeModule === mod.id 
-                    ? `bg-white/10 border-white/20 ${color}` 
-                    : 'border-transparent text-gray-500 hover:bg-white/5 hover:text-gray-300'
-                }`}
-              >
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-[10px] font-bold uppercase tracking-wider flex items-center gap-1.5">
-                    <i className="fas fa-file-code text-[8px]"></i>
-                    {mod.name}
-                  </span>
-                  <span className={`text-[6px] px-1 py-0.5 rounded font-black ${
-                    mod.status === 'READY' ? 'bg-emerald-500/20 text-emerald-500' :
-                    mod.status === 'ACTIVE' ? 'bg-blue-500/20 text-blue-500 animate-pulse' :
-                    'bg-red-500/20 text-red-500'
-                  }`}>
-                    {mod.status}
-                  </span>
-                </div>
-                <p className="text-[8px] opacity-70 truncate">{mod.desc}</p>
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Control Panel (Right) */}
-        <div className="flex-1 flex flex-col bg-[#0a0a0a]">
-          {/* Config Area */}
-          <div className="p-4 border-b border-white/10 overflow-y-auto max-h-[50vh] custom-scroll">
-            {mode === 'MANUAL' && isDdosTool ? (
-              <ManualDdosTool toolName={title as 'US-DDOS-V2' | 'ufodos'} addLog={addManualLog} />
+        {mode === 'MANUAL' ? (
+          <div className="flex-1 p-4 bg-[#050505]">
+            {isDdosTool ? (
+              <ManualDdosTool toolName={title as any} addLog={addManualLog} />
+            ) : isGptTool ? (
+              <GptTool />
             ) : (
-              <>
+              <Terminal 
+                toolName={title} 
+                onExecute={handleTerminalExecute}
+                isRunning={isRunning}
+                onStop={() => setIsRunning(false)}
+              />
+            )}
+          </div>
+        ) : (
+          <>
+            {/* Repo Structure (Left) */}
+            <div className="w-full md:w-64 border-r border-white/10 bg-[#050505] flex flex-col">
+              <div className="p-2 border-b border-white/10 bg-black">
+                <span className="text-[8px] font-black text-gray-500 uppercase tracking-widest">Repository Modules</span>
+              </div>
+              <div className="flex-1 overflow-y-auto custom-scroll p-2 space-y-1">
+                {modules.map(mod => (
+                  <button
+                    key={mod.id}
+                    onClick={() => setActiveModule(mod.id)}
+                    className={`w-full text-left p-2 rounded border transition-all ${
+                      activeModule === mod.id 
+                        ? `bg-white/10 border-white/20 ${color}` 
+                        : 'border-transparent text-gray-500 hover:bg-white/5 hover:text-gray-300'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-[10px] font-bold uppercase tracking-wider flex items-center gap-1.5">
+                        <i className="fas fa-file-code text-[8px]"></i>
+                        {mod.name}
+                      </span>
+                      <span className={`text-[6px] px-1 py-0.5 rounded font-black ${
+                        mod.status === 'READY' ? 'bg-emerald-500/20 text-emerald-500' :
+                        mod.status === 'ACTIVE' ? 'bg-blue-500/20 text-blue-500 animate-pulse' :
+                        'bg-red-500/20 text-red-500'
+                      }`}>
+                        {mod.status}
+                      </span>
+                    </div>
+                    <p className="text-[8px] opacity-70 truncate">{mod.desc}</p>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Control Panel (Right) */}
+            <div className="flex-1 flex flex-col bg-[#0a0a0a]">
+              {/* Config Area */}
+              <div className="p-4 border-b border-white/10 overflow-y-auto max-h-[50vh] custom-scroll">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
-                    {mode === 'AUTONOMOUS' ? 'Autonomous Config' : 'Manual Command Input'}
+                    Autonomous Configuration
                   </h3>
                   <button 
                     onClick={handleExecute}
@@ -170,105 +207,78 @@ const ToolPanel: React.FC<ToolPanelProps> = ({ title, icon, color, description, 
                         : `bg-white/5 ${color} border border-current hover:bg-white/10`
                     }`}
                   >
-                    {isRunning ? 'HALT PROCESS' : mode === 'AUTONOMOUS' ? 'EXECUTE MODULE' : 'RUN COMMAND'}
+                    {isRunning ? 'HALT PROCESS' : 'EXECUTE MODULE'}
                   </button>
                 </div>
                 
-                {mode === 'AUTONOMOUS' ? (
-                  <>
-                    <div className="grid grid-cols-2 gap-4 mb-4">
-                      <div className="space-y-1">
-                        <label className="text-[8px] text-gray-500 uppercase tracking-widest">Target Vector</label>
-                        <input 
-                          type="text" 
-                          value={target}
-                          onChange={(e) => setTarget(e.target.value)}
-                          placeholder="Enter target IP/URL/Hash..." 
-                          className="w-full bg-black border border-white/10 rounded px-2 py-1.5 text-[10px] text-white outline-none focus:border-white/30" 
-                        />
-                      </div>
-                      <div className="space-y-1">
-                        <label className="text-[8px] text-gray-500 uppercase tracking-widest">Thread Count</label>
-                        <input 
-                          type="number" 
-                          value={threads}
-                          onChange={(e) => setThreads(parseInt(e.target.value) || 10)}
-                          className="w-full bg-black border border-white/10 rounded px-2 py-1.5 text-[10px] text-white outline-none focus:border-white/30" 
-                        />
-                      </div>
-                    </div>
-                    
-                    <div className="space-y-1">
-                      <label className="text-[8px] text-[#00ffc3] uppercase tracking-widest flex items-center gap-2">
-                        <i className="fas fa-magic"></i> Dynamic AI Directive (Auto-Rewrite)
-                      </label>
-                      <input 
-                        type="text" 
-                        value={customPrompt}
-                        onChange={(e) => setCustomPrompt(e.target.value)}
-                        placeholder="E.g., 'Rewrite this tool to scan for CVE-2024-XXXX and output in JSON format'" 
-                        className="w-full bg-black/50 border border-[#00ffc3]/30 rounded px-2 py-1.5 text-[10px] text-[#00ffc3] outline-none focus:border-[#00ffc3]" 
-                      />
-                    </div>
-                  </>
-                ) : (
-                  <div className="space-y-3">
-                    <div className="space-y-1">
-                      <label className="text-[8px] text-gray-500 uppercase tracking-widest">Manual Command</label>
-                      <input 
-                        type="text" 
-                        value={manualCommand}
-                        onChange={(e) => setManualCommand(e.target.value)}
-                        placeholder="Enter manual command (e.g., --scan --target 192.168.1.1 --aggressive)" 
-                        className="w-full bg-black border border-white/10 rounded px-2 py-1.5 text-[10px] text-white outline-none focus:border-white/30" 
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-[8px] text-gray-500 uppercase tracking-widest">Target Context (Optional)</label>
-                      <input 
-                        type="text" 
-                        value={target}
-                        onChange={(e) => setTarget(e.target.value)}
-                        placeholder="Enter target IP/URL..." 
-                        className="w-full bg-black border border-white/10 rounded px-2 py-1.5 text-[10px] text-white outline-none focus:border-white/30" 
-                      />
-                    </div>
+                <div className="grid grid-cols-2 gap-4 mb-4">
+                  <div className="space-y-1">
+                    <label className="text-[8px] text-gray-500 uppercase tracking-widest">Target Vector</label>
+                    <input 
+                      type="text" 
+                      value={target}
+                      onChange={(e) => setTarget(e.target.value)}
+                      placeholder="Enter target IP/URL/Hash..." 
+                      className="w-full bg-black border border-white/10 rounded px-2 py-1.5 text-[10px] text-white outline-none focus:border-white/30" 
+                    />
                   </div>
-                )}
-              </>
-            )}
-          </div>
+                  <div className="space-y-1">
+                    <label className="text-[8px] text-gray-500 uppercase tracking-widest">Thread Count</label>
+                    <input 
+                      type="number" 
+                      value={threads}
+                      onChange={(e) => setThreads(parseInt(e.target.value) || 10)}
+                      className="w-full bg-black border border-white/10 rounded px-2 py-1.5 text-[10px] text-white outline-none focus:border-white/30" 
+                    />
+                  </div>
+                </div>
+                
+                <div className="space-y-1">
+                  <label className="text-[8px] text-[#00ffc3] uppercase tracking-widest flex items-center gap-2">
+                    <i className="fas fa-magic"></i> Dynamic AI Directive (Auto-Rewrite)
+                  </label>
+                  <input 
+                    type="text" 
+                    value={customPrompt}
+                    onChange={(e) => setCustomPrompt(e.target.value)}
+                    placeholder="E.g., 'Rewrite this tool to scan for CVE-2024-XXXX and output in JSON format'" 
+                    className="w-full bg-black/50 border border-[#00ffc3]/30 rounded px-2 py-1.5 text-[10px] text-[#00ffc3] outline-none focus:border-[#00ffc3]" 
+                  />
+                </div>
+              </div>
 
-          {/* Console Output */}
-          <div className="flex-1 flex flex-col min-h-0">
-            <div className="p-2 border-b border-white/10 bg-black flex items-center justify-between">
-              <span className="text-[8px] font-black text-gray-500 uppercase tracking-widest">Process Output</span>
-              <button onClick={() => { setLogs([]); setConsoleOutput(''); }} className="text-[8px] text-gray-500 hover:text-white uppercase tracking-widest">Clear</button>
-            </div>
-            <div className="flex-1 p-3 overflow-y-auto custom-scroll bg-[#020202] text-[10px] space-y-1">
-              {logs.length === 0 && !consoleOutput ? (
-                <div className="text-gray-600 italic">Waiting for execution...</div>
-              ) : (
-                <>
-                  {logs.map((log, i) => (
-                    <div key={i} className="text-gray-400">
-                      <span className={color}>➜</span> {log}
-                    </div>
-                  ))}
-                  {consoleOutput && (
-                    <div className="text-gray-300 whitespace-pre-wrap mt-2 font-mono">
-                      {consoleOutput}
-                    </div>
+              {/* Console Output */}
+              <div className="flex-1 flex flex-col min-h-0">
+                <div className="p-2 border-b border-white/10 bg-black flex items-center justify-between">
+                  <span className="text-[8px] font-black text-gray-500 uppercase tracking-widest">Process Output</span>
+                  <button onClick={() => { setLogs([]); setConsoleOutput(''); }} className="text-[8px] text-gray-500 hover:text-white uppercase tracking-widest">Clear</button>
+                </div>
+                <div className="flex-1 p-3 overflow-y-auto custom-scroll bg-[#020202] text-[10px] space-y-1">
+                  {logs.length === 0 && !consoleOutput ? (
+                    <div className="text-gray-600 italic">Waiting for execution...</div>
+                  ) : (
+                    <>
+                      {logs.map((log, i) => (
+                        <div key={i} className="text-gray-400">
+                          <span className={color}>➜</span> {log}
+                        </div>
+                      ))}
+                      {consoleOutput && (
+                        <div className="text-gray-300 whitespace-pre-wrap mt-2 font-mono">
+                          {consoleOutput}
+                        </div>
+                      )}
+                    </>
                   )}
-                </>
-              )}
-              {isRunning && (
-                <div className={`animate-pulse ${color} mt-2`}>_</div>
-              )}
-              <div ref={consoleEndRef} />
+                  {isRunning && (
+                    <div className={`animate-pulse ${color} mt-2`}>_</div>
+                  )}
+                  <div ref={consoleEndRef} />
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
+          </>
+        )}
       </div>
     </div>
   );
