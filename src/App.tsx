@@ -368,6 +368,7 @@ export default function App() {
               isUp={isUp}
               isAttacking={isAttacking}
               isAdmin={isAdminLoggedIn}
+              onLogout={handleLogout}
             />
           )}
           

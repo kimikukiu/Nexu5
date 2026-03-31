@@ -11,6 +11,7 @@ interface SidebarProps {
   isUp?: boolean;
   isAttacking?: boolean;
   isAdmin?: boolean;
+  onLogout?: () => void;
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ 
@@ -20,7 +21,8 @@ const Sidebar: React.FC<SidebarProps> = ({
   target = "NONE", 
   isUp = true, 
   isAttacking = false,
-  isAdmin = false
+  isAdmin = false,
+  onLogout
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
@@ -160,7 +162,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         </nav>
       </div>
 
-      <div className="p-2 border-t border-white/5 hidden md:block shrink-0 bg-black/20">
+      <div className="p-2 border-t border-white/5 hidden md:block shrink-0 bg-black/20 space-y-2">
         <div className={`bg-black p-2.5 rounded-lg border transition-all ${isAttacking ? 'border-fuchsia-600/30' : 'border-emerald-500/10'}`}>
           <div className="flex items-center justify-between mb-1">
             <span className="text-[6px] text-gray-600 font-black uppercase tracking-widest">Swarm Link</span>
@@ -178,6 +180,16 @@ const Sidebar: React.FC<SidebarProps> = ({
              </div>
           </div>
         </div>
+
+        {onLogout && (
+          <button
+            onClick={onLogout}
+            className="w-full flex items-center justify-center md:justify-start gap-3 px-3 py-2 bg-red-600/10 hover:bg-red-600/20 border border-red-600/30 hover:border-red-600 text-red-500 hover:text-red-400 rounded-lg transition-all group font-black uppercase text-[8px] tracking-[0.2em]"
+          >
+            <i className="fas fa-sign-out-alt text-sm w-5 transition-transform group-hover:scale-110"></i>
+            <span className="hidden md:block">Logout</span>
+          </button>
+        )}
       </div>
     </aside>
   );
