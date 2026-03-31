@@ -26,7 +26,7 @@ import { WormMoneyV3 } from './components/tools/WormMoneyV3';
 import StarsXKill from './components/tools/StarsXKill';
 import Vector76Tool from './components/tools/Vector76Tool';
 import FlashBTCTool from './components/tools/FlashBTCTool';
-import Superbet24x7 from './components/tools/Superbet24x7';
+import Superbet24x7Enhanced from './components/tools/Superbet24x7Enhanced';
 import USDDOSV2 from './components/tools/USDDOSV2';
 import PandaGPT from './components/PandaGPT';
 import MiraiToolsHubManual from './components/MiraiToolsHubManual';
@@ -260,7 +260,7 @@ export default function App() {
       case AppTab.FLASH_BTC:
         return <FlashBTCTool />;
       case AppTab.SUPERBET_24X7:
-        return <Superbet24x7 />;
+        return <Superbet24x7Enhanced />;
       case AppTab.US_DDOS_V2:
         return <USDDOSV2 />;
       case AppTab.TOOL_INDEX:
