@@ -68,6 +68,7 @@ export interface DynamicTool {
   icon: string;
   color: string;
   category: string;
+  sourcePath?: string;
   modules: {
     id: string;
     name: string;
