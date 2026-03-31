@@ -27,6 +27,7 @@ import StarsXKill from './components/tools/StarsXKill';
 import Vector76Tool from './components/tools/Vector76Tool';
 import FlashBTCTool from './components/tools/FlashBTCTool';
 import Superbet24x7 from './components/tools/Superbet24x7';
+import USDDOSV2 from './components/tools/USDDOSV2';
 import PandaGPT from './components/PandaGPT';
 import MiraiToolsHub from './components/MiraiToolsHub';
 import SocialTakeover from './components/SocialTakeover';
@@ -260,6 +261,8 @@ export default function App() {
         return <FlashBTCTool />;
       case AppTab.SUPERBET_24X7:
         return <Superbet24x7 />;
+      case AppTab.US_DDOS_V2:
+        return <USDDOSV2 />;
       case AppTab.TOOL_INDEX:
         return <MiraiToolsHub />;
       case AppTab.DYNAMIC_TOOL:
