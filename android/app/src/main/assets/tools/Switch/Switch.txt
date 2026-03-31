@@ -1,0 +1,27 @@
+username: switch
+password: coolhot12 / switch12
+
+IP 151.226.86.31
+ISP: SkyBroadband
+
+
+Protonmail:jacklewis1uk@protonmail.com
+password:coolhot12
+
+
+PayPal/Protonmail: switchlofi@protonmail.com
+password: coolhot12
+
+PayPal/Protonmail: jlxmusic@protonmai.com
+password: coolhot12
+
+Adress: 12 Wroxton Court
+City: Milton Keynes
+State: Buckinghamshire
+ZIP Code: MK4 4BG
+
+
+
+CC last 4 digits: 6707
+Exp date: 08/22
+Type: Visa Debit Card 

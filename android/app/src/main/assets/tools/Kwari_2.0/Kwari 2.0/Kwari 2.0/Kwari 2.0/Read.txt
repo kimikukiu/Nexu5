@@ -1,0 +1,12 @@
+PRIVATE SOURCE-->
+
+Kwari 2.0
+Telnet Scanner Fixed
+More L7 Power
+L4 Methods Fixed
+More Stability
+No Dups
+Improved Killer
+Improved CNC
+
+#By xExploit

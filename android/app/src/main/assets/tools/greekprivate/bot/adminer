@@ -1,0 +1,6 @@
+wget https://github.com/vrana/adminer/releases/download/v4.3.1/adminer-4.3.1.zip
+unzip adminer-4.3.1.zip -d /var/www/html/
+mv /var/www/html/adminer-4.3.1/ /var/www/html/adminer
+chown -R apache:apache /var/www/html/adminer/
+chmod -R 775 /var/www/html/adminer/
+yum install phpmyadmin -y

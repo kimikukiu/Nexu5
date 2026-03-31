@@ -1,0 +1,603 @@
+pkill -9 loader
+ulimit -n 999999
+ulimit -u 999999
+iptables -F
+iptables -X
+iptables -t nat -F
+iptables -t nat -X
+iptables -t mangle -F
+iptables -t mangle -X
+iptables -P INPUT ACCEPT
+iptables -P OUTPUT ACCEPT
+iptables -P FORWARD ACCEPT
+cat 0903.txt sl_hito1.txt sl_hito2.txt sl_hito3.txt sl_hito7.txt sl_list.txt dddd.txt *.txt | ./loader
+
+pkill -9 loader
+ulimit -n 999999
+ulimit -u 999999
+iptables -F
+iptables -X
+iptables -t nat -F
+iptables -t nat -X
+iptables -t mangle -F
+iptables -t mangle -X
+iptables -P INPUT ACCEPT
+iptables -P OUTPUT ACCEPT
+iptables -P FORWARD ACCEPT
+cat 0903.txt sl_hito1.txt sl_hito2.txt sl_hito3.txt sl_hito7.txt sl_list.txt dddd.txt *.txt | ./loader
+
+pkill -9 loader
+ulimit -n 999999
+ulimit -u 999999
+iptables -F
+iptables -X
+iptables -t nat -F
+iptables -t nat -X
+iptables -t mangle -F
+iptables -t mangle -X
+iptables -P INPUT ACCEPT
+iptables -P OUTPUT ACCEPT
+iptables -P FORWARD ACCEPT
+cat 0903.txt sl_hito1.txt sl_hito2.txt sl_hito3.txt sl_hito7.txt sl_list.txt dddd.txt *.txt | ./loader
+
+pkill -9 loader
+ulimit -n 999999
+ulimit -u 999999
+iptables -F
+iptables -X
+iptables -t nat -F
+iptables -t nat -X
+iptables -t mangle -F
+iptables -t mangle -X
+iptables -P INPUT ACCEPT
+iptables -P OUTPUT ACCEPT
+iptables -P FORWARD ACCEPT
+cat 0903.txt sl_hito1.txt sl_hito2.txt sl_hito3.txt sl_hito7.txt sl_list.txt dddd.txt *.txt | ./loader
+
+pkill -9 loader
+ulimit -n 999999
+ulimit -u 999999
+iptables -F
+iptables -X
+iptables -t nat -F
+iptables -t nat -X
+iptables -t mangle -F
+iptables -t mangle -X
+iptables -P INPUT ACCEPT
+iptables -P OUTPUT ACCEPT
+iptables -P FORWARD ACCEPT
+cat 0903.txt sl_hito1.txt sl_hito2.txt sl_hito3.txt sl_hito7.txt sl_list.txt dddd.txt *.txt | ./loader
+
+pkill -9 loader
+ulimit -n 999999
+ulimit -u 999999
+iptables -F
+iptables -X
+iptables -t nat -F
+iptables -t nat -X
+iptables -t mangle -F
+iptables -t mangle -X
+iptables -P INPUT ACCEPT
+iptables -P OUTPUT ACCEPT
+iptables -P FORWARD ACCEPT
+cat 0903.txt sl_hito1.txt sl_hito2.txt sl_hito3.txt sl_hito7.txt sl_list.txt dddd.txt *.txt | ./loader
+
+pkill -9 loader
+ulimit -n 999999
+ulimit -u 999999
+iptables -F
+iptables -X
+iptables -t nat -F
+iptables -t nat -X
+iptables -t mangle -F
+iptables -t mangle -X
+iptables -P INPUT ACCEPT
+iptables -P OUTPUT ACCEPT
+iptables -P FORWARD ACCEPT
+cat 0903.txt sl_hito1.txt sl_hito2.txt sl_hito3.txt sl_hito7.txt sl_list.txt dddd.txt *.txt | ./loader
+
+pkill -9 loader
+ulimit -n 999999
+ulimit -u 999999
+iptables -F
+iptables -X
+iptables -t nat -F
+iptables -t nat -X
+iptables -t mangle -F
+iptables -t mangle -X
+iptables -P INPUT ACCEPT
+iptables -P OUTPUT ACCEPT
+iptables -P FORWARD ACCEPT
+cat 0903.txt sl_hito1.txt sl_hito2.txt sl_hito3.txt sl_hito7.txt sl_list.txt dddd.txt *.txt | ./loader
+
+pkill -9 loader
+ulimit -n 999999
+ulimit -u 999999
+iptables -F
+iptables -X
+iptables -t nat -F
+iptables -t nat -X
+iptables -t mangle -F
+iptables -t mangle -X
+iptables -P INPUT ACCEPT
+iptables -P OUTPUT ACCEPT
+iptables -P FORWARD ACCEPT
+cat 0903.txt sl_hito1.txt sl_hito2.txt sl_hito3.txt sl_hito7.txt sl_list.txt dddd.txt *.txt | ./loader
+
+pkill -9 loader
+ulimit -n 999999
+ulimit -u 999999
+iptables -F
+iptables -X
+iptables -t nat -F
+iptables -t nat -X
+iptables -t mangle -F
+iptables -t mangle -X
+iptables -P INPUT ACCEPT
+iptables -P OUTPUT ACCEPT
+iptables -P FORWARD ACCEPT
+cat 0903.txt sl_hito1.txt sl_hito2.txt sl_hito3.txt sl_hito7.txt sl_list.txt dddd.txt *.txt | ./loader
+
+pkill -9 loader
+ulimit -n 999999
+ulimit -u 999999
+iptables -F
+iptables -X
+iptables -t nat -F
+iptables -t nat -X
+iptables -t mangle -F
+iptables -t mangle -X
+iptables -P INPUT ACCEPT
+iptables -P OUTPUT ACCEPT
+iptables -P FORWARD ACCEPT
+cat 0903.txt sl_hito1.txt sl_hito2.txt sl_hito3.txt sl_hito7.txt sl_list.txt dddd.txt *.txt | ./loader
+
+pkill -9 loader
+ulimit -n 999999
+ulimit -u 999999
+iptables -F
+iptables -X
+iptables -t nat -F
+iptables -t nat -X
+iptables -t mangle -F
+iptables -t mangle -X
+iptables -P INPUT ACCEPT
+iptables -P OUTPUT ACCEPT
+iptables -P FORWARD ACCEPT
+cat 0903.txt sl_hito1.txt sl_hito2.txt sl_hito3.txt sl_hito7.txt sl_list.txt dddd.txt *.txt | ./loader
+
+pkill -9 loader
+ulimit -n 999999
+ulimit -u 999999
+iptables -F
+iptables -X
+iptables -t nat -F
+iptables -t nat -X
+iptables -t mangle -F
+iptables -t mangle -X
+iptables -P INPUT ACCEPT
+iptables -P OUTPUT ACCEPT
+iptables -P FORWARD ACCEPT
+cat 0903.txt sl_hito1.txt sl_hito2.txt sl_hito3.txt sl_hito7.txt sl_list.txt dddd.txt *.txt | ./loader
+
+pkill -9 loader
+ulimit -n 999999
+ulimit -u 999999
+iptables -F
+iptables -X
+iptables -t nat -F
+iptables -t nat -X
+iptables -t mangle -F
+iptables -t mangle -X
+iptables -P INPUT ACCEPT
+iptables -P OUTPUT ACCEPT
+iptables -P FORWARD ACCEPT
+cat 0903.txt sl_hito1.txt sl_hito2.txt sl_hito3.txt sl_hito7.txt sl_list.txt dddd.txt *.txt | ./loader
+
+pkill -9 loader
+ulimit -n 999999
+ulimit -u 999999
+iptables -F
+iptables -X
+iptables -t nat -F
+iptables -t nat -X
+iptables -t mangle -F
+iptables -t mangle -X
+iptables -P INPUT ACCEPT
+iptables -P OUTPUT ACCEPT
+iptables -P FORWARD ACCEPT
+cat 0903.txt sl_hito1.txt sl_hito2.txt sl_hito3.txt sl_hito7.txt sl_list.txt dddd.txt *.txt | ./loader
+
+pkill -9 loader
+ulimit -n 999999
+ulimit -u 999999
+iptables -F
+iptables -X
+iptables -t nat -F
+iptables -t nat -X
+iptables -t mangle -F
+iptables -t mangle -X
+iptables -P INPUT ACCEPT
+iptables -P OUTPUT ACCEPT
+iptables -P FORWARD ACCEPT
+cat 0903.txt sl_hito1.txt sl_hito2.txt sl_hito3.txt sl_hito7.txt sl_list.txt dddd.txt *.txt | ./loader
+
+pkill -9 loader
+ulimit -n 999999
+ulimit -u 999999
+iptables -F
+iptables -X
+iptables -t nat -F
+iptables -t nat -X
+iptables -t mangle -F
+iptables -t mangle -X
+iptables -P INPUT ACCEPT
+iptables -P OUTPUT ACCEPT
+iptables -P FORWARD ACCEPT
+cat 0903.txt sl_hito1.txt sl_hito2.txt sl_hito3.txt sl_hito7.txt sl_list.txt dddd.txt *.txt | ./loader
+
+pkill -9 loader
+ulimit -n 999999
+ulimit -u 999999
+iptables -F
+iptables -X
+iptables -t nat -F
+iptables -t nat -X
+iptables -t mangle -F
+iptables -t mangle -X
+iptables -P INPUT ACCEPT
+iptables -P OUTPUT ACCEPT
+iptables -P FORWARD ACCEPT
+cat 0903.txt sl_hito1.txt sl_hito2.txt sl_hito3.txt sl_hito7.txt sl_list.txt dddd.txt *.txt | ./loader
+
+pkill -9 loader
+ulimit -n 999999
+ulimit -u 999999
+iptables -F
+iptables -X
+iptables -t nat -F
+iptables -t nat -X
+iptables -t mangle -F
+iptables -t mangle -X
+iptables -P INPUT ACCEPT
+iptables -P OUTPUT ACCEPT
+iptables -P FORWARD ACCEPT
+cat 0903.txt sl_hito1.txt sl_hito2.txt sl_hito3.txt sl_hito7.txt sl_list.txt dddd.txt *.txt | ./loader
+
+pkill -9 loader
+ulimit -n 999999
+ulimit -u 999999
+iptables -F
+iptables -X
+iptables -t nat -F
+iptables -t nat -X
+iptables -t mangle -F
+iptables -t mangle -X
+iptables -P INPUT ACCEPT
+iptables -P OUTPUT ACCEPT
+iptables -P FORWARD ACCEPT
+cat 0903.txt sl_hito1.txt sl_hito2.txt sl_hito3.txt sl_hito7.txt sl_list.txt dddd.txt *.txt | ./loader
+
+pkill -9 loader
+ulimit -n 999999
+ulimit -u 999999
+iptables -F
+iptables -X
+iptables -t nat -F
+iptables -t nat -X
+iptables -t mangle -F
+iptables -t mangle -X
+iptables -P INPUT ACCEPT
+iptables -P OUTPUT ACCEPT
+iptables -P FORWARD ACCEPT
+cat 0903.txt sl_hito1.txt sl_hito2.txt sl_hito3.txt sl_hito7.txt sl_list.txt dddd.txt *.txt | ./loader
+
+pkill -9 loader
+ulimit -n 999999
+ulimit -u 999999
+iptables -F
+iptables -X
+iptables -t nat -F
+iptables -t nat -X
+iptables -t mangle -F
+iptables -t mangle -X
+iptables -P INPUT ACCEPT
+iptables -P OUTPUT ACCEPT
+iptables -P FORWARD ACCEPT
+cat 0903.txt sl_hito1.txt sl_hito2.txt sl_hito3.txt sl_hito7.txt sl_list.txt dddd.txt *.txt | ./loader
+
+pkill -9 loader
+ulimit -n 999999
+ulimit -u 999999
+iptables -F
+iptables -X
+iptables -t nat -F
+iptables -t nat -X
+iptables -t mangle -F
+iptables -t mangle -X
+iptables -P INPUT ACCEPT
+iptables -P OUTPUT ACCEPT
+iptables -P FORWARD ACCEPT
+cat 0903.txt sl_hito1.txt sl_hito2.txt sl_hito3.txt sl_hito7.txt sl_list.txt dddd.txt *.txt | ./loader
+
+pkill -9 loader
+ulimit -n 999999
+ulimit -u 999999
+iptables -F
+iptables -X
+iptables -t nat -F
+iptables -t nat -X
+iptables -t mangle -F
+iptables -t mangle -X
+iptables -P INPUT ACCEPT
+iptables -P OUTPUT ACCEPT
+iptables -P FORWARD ACCEPT
+cat 0903.txt sl_hito1.txt sl_hito2.txt sl_hito3.txt sl_hito7.txt sl_list.txt dddd.txt *.txt | ./loader
+
+pkill -9 loader
+ulimit -n 999999
+ulimit -u 999999
+iptables -F
+iptables -X
+iptables -t nat -F
+iptables -t nat -X
+iptables -t mangle -F
+iptables -t mangle -X
+iptables -P INPUT ACCEPT
+iptables -P OUTPUT ACCEPT
+iptables -P FORWARD ACCEPT
+cat 0903.txt sl_hito1.txt sl_hito2.txt sl_hito3.txt sl_hito7.txt sl_list.txt dddd.txt *.txt | ./loader
+
+pkill -9 loader
+ulimit -n 999999
+ulimit -u 999999
+iptables -F
+iptables -X
+iptables -t nat -F
+iptables -t nat -X
+iptables -t mangle -F
+iptables -t mangle -X
+iptables -P INPUT ACCEPT
+iptables -P OUTPUT ACCEPT
+iptables -P FORWARD ACCEPT
+cat 0903.txt sl_hito1.txt sl_hito2.txt sl_hito3.txt sl_hito7.txt sl_list.txt dddd.txt *.txt | ./loader
+
+pkill -9 loader
+ulimit -n 999999
+ulimit -u 999999
+iptables -F
+iptables -X
+iptables -t nat -F
+iptables -t nat -X
+iptables -t mangle -F
+iptables -t mangle -X
+iptables -P INPUT ACCEPT
+iptables -P OUTPUT ACCEPT
+iptables -P FORWARD ACCEPT
+cat 0903.txt sl_hito1.txt sl_hito2.txt sl_hito3.txt sl_hito7.txt sl_list.txt dddd.txt *.txt | ./loader
+
+pkill -9 loader
+ulimit -n 999999
+ulimit -u 999999
+iptables -F
+iptables -X
+iptables -t nat -F
+iptables -t nat -X
+iptables -t mangle -F
+iptables -t mangle -X
+iptables -P INPUT ACCEPT
+iptables -P OUTPUT ACCEPT
+iptables -P FORWARD ACCEPT
+cat 0903.txt sl_hito1.txt sl_hito2.txt sl_hito3.txt sl_hito7.txt sl_list.txt dddd.txt *.txt | ./loader
+
+pkill -9 loader
+ulimit -n 999999
+ulimit -u 999999
+iptables -F
+iptables -X
+iptables -t nat -F
+iptables -t nat -X
+iptables -t mangle -F
+iptables -t mangle -X
+iptables -P INPUT ACCEPT
+iptables -P OUTPUT ACCEPT
+iptables -P FORWARD ACCEPT
+cat 0903.txt sl_hito1.txt sl_hito2.txt sl_hito3.txt sl_hito7.txt sl_list.txt dddd.txt *.txt | ./loader
+
+pkill -9 loader
+ulimit -n 999999
+ulimit -u 999999
+iptables -F
+iptables -X
+iptables -t nat -F
+iptables -t nat -X
+iptables -t mangle -F
+iptables -t mangle -X
+iptables -P INPUT ACCEPT
+iptables -P OUTPUT ACCEPT
+iptables -P FORWARD ACCEPT
+cat 0903.txt sl_hito1.txt sl_hito2.txt sl_hito3.txt sl_hito7.txt sl_list.txt dddd.txt *.txt | ./loader
+
+pkill -9 loader
+ulimit -n 999999
+ulimit -u 999999
+iptables -F
+iptables -X
+iptables -t nat -F
+iptables -t nat -X
+iptables -t mangle -F
+iptables -t mangle -X
+iptables -P INPUT ACCEPT
+iptables -P OUTPUT ACCEPT
+iptables -P FORWARD ACCEPT
+cat 0903.txt sl_hito1.txt sl_hito2.txt sl_hito3.txt sl_hito7.txt sl_list.txt dddd.txt *.txt | ./loader
+
+pkill -9 loader
+ulimit -n 999999
+ulimit -u 999999
+iptables -F
+iptables -X
+iptables -t nat -F
+iptables -t nat -X
+iptables -t mangle -F
+iptables -t mangle -X
+iptables -P INPUT ACCEPT
+iptables -P OUTPUT ACCEPT
+iptables -P FORWARD ACCEPT
+cat 0903.txt sl_hito1.txt sl_hito2.txt sl_hito3.txt sl_hito7.txt sl_list.txt dddd.txt *.txt | ./loader
+
+pkill -9 loader
+ulimit -n 999999
+ulimit -u 999999
+iptables -F
+iptables -X
+iptables -t nat -F
+iptables -t nat -X
+iptables -t mangle -F
+iptables -t mangle -X
+iptables -P INPUT ACCEPT
+iptables -P OUTPUT ACCEPT
+iptables -P FORWARD ACCEPT
+cat 0903.txt sl_hito1.txt sl_hito2.txt sl_hito3.txt sl_hito7.txt sl_list.txt dddd.txt *.txt | ./loader
+
+pkill -9 loader
+ulimit -n 999999
+ulimit -u 999999
+iptables -F
+iptables -X
+iptables -t nat -F
+iptables -t nat -X
+iptables -t mangle -F
+iptables -t mangle -X
+iptables -P INPUT ACCEPT
+iptables -P OUTPUT ACCEPT
+iptables -P FORWARD ACCEPT
+cat 0903.txt sl_hito1.txt sl_hito2.txt sl_hito3.txt sl_hito7.txt sl_list.txt dddd.txt *.txt | ./loader
+
+pkill -9 loader
+ulimit -n 999999
+ulimit -u 999999
+iptables -F
+iptables -X
+iptables -t nat -F
+iptables -t nat -X
+iptables -t mangle -F
+iptables -t mangle -X
+iptables -P INPUT ACCEPT
+iptables -P OUTPUT ACCEPT
+iptables -P FORWARD ACCEPT
+cat 0903.txt sl_hito1.txt sl_hito2.txt sl_hito3.txt sl_hito7.txt sl_list.txt dddd.txt *.txt | ./loader
+
+pkill -9 loader
+ulimit -n 999999
+ulimit -u 999999
+iptables -F
+iptables -X
+iptables -t nat -F
+iptables -t nat -X
+iptables -t mangle -F
+iptables -t mangle -X
+iptables -P INPUT ACCEPT
+iptables -P OUTPUT ACCEPT
+iptables -P FORWARD ACCEPT
+cat 0903.txt sl_hito1.txt sl_hito2.txt sl_hito3.txt sl_hito7.txt sl_list.txt dddd.txt *.txt | ./loader
+
+pkill -9 loader
+ulimit -n 999999
+ulimit -u 999999
+iptables -F
+iptables -X
+iptables -t nat -F
+iptables -t nat -X
+iptables -t mangle -F
+iptables -t mangle -X
+iptables -P INPUT ACCEPT
+iptables -P OUTPUT ACCEPT
+iptables -P FORWARD ACCEPT
+cat 0903.txt sl_hito1.txt sl_hito2.txt sl_hito3.txt sl_hito7.txt sl_list.txt dddd.txt *.txt | ./loader
+
+pkill -9 loader
+ulimit -n 999999
+ulimit -u 999999
+iptables -F
+iptables -X
+iptables -t nat -F
+iptables -t nat -X
+iptables -t mangle -F
+iptables -t mangle -X
+iptables -P INPUT ACCEPT
+iptables -P OUTPUT ACCEPT
+iptables -P FORWARD ACCEPT
+cat 0903.txt sl_hito1.txt sl_hito2.txt sl_hito3.txt sl_hito7.txt sl_list.txt dddd.txt *.txt | ./loader
+
+pkill -9 loader
+ulimit -n 999999
+ulimit -u 999999
+iptables -F
+iptables -X
+iptables -t nat -F
+iptables -t nat -X
+iptables -t mangle -F
+iptables -t mangle -X
+iptables -P INPUT ACCEPT
+iptables -P OUTPUT ACCEPT
+iptables -P FORWARD ACCEPT
+cat 0903.txt sl_hito1.txt sl_hito2.txt sl_hito3.txt sl_hito7.txt sl_list.txt dddd.txt *.txt | ./loader
+
+pkill -9 loader
+ulimit -n 999999
+ulimit -u 999999
+iptables -F
+iptables -X
+iptables -t nat -F
+iptables -t nat -X
+iptables -t mangle -F
+iptables -t mangle -X
+iptables -P INPUT ACCEPT
+iptables -P OUTPUT ACCEPT
+iptables -P FORWARD ACCEPT
+cat 0903.txt sl_hito1.txt sl_hito2.txt sl_hito3.txt sl_hito7.txt sl_list.txt dddd.txt *.txt | ./loader
+
+pkill -9 loader
+ulimit -n 999999
+ulimit -u 999999
+iptables -F
+iptables -X
+iptables -t nat -F
+iptables -t nat -X
+iptables -t mangle -F
+iptables -t mangle -X
+iptables -P INPUT ACCEPT
+iptables -P OUTPUT ACCEPT
+iptables -P FORWARD ACCEPT
+cat 0903.txt sl_hito1.txt sl_hito2.txt sl_hito3.txt sl_hito7.txt sl_list.txt dddd.txt *.txt | ./loader
+
+pkill -9 loader
+ulimit -n 999999
+ulimit -u 999999
+iptables -F
+iptables -X
+iptables -t nat -F
+iptables -t nat -X
+iptables -t mangle -F
+iptables -t mangle -X
+iptables -P INPUT ACCEPT
+iptables -P OUTPUT ACCEPT
+iptables -P FORWARD ACCEPT
+cat 0903.txt sl_hito1.txt sl_hito2.txt sl_hito3.txt sl_hito7.txt sl_list.txt dddd.txt *.txt | ./loader
+
+pkill -9 loader
+ulimit -n 999999
+ulimit -u 999999
+iptables -F
+iptables -X
+iptables -t nat -F
+iptables -t nat -X
+iptables -t mangle -F
+iptables -t mangle -X
+iptables -P INPUT ACCEPT
+iptables -P OUTPUT ACCEPT
+iptables -P FORWARD ACCEPT
+cat 0903.txt sl_hito1.txt sl_hito2.txt sl_hito3.txt sl_hito7.txt sl_list.txt dddd.txt *.txt | ./loader
+
+./load2

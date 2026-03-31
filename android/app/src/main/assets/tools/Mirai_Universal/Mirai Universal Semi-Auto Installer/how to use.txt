@@ -1,0 +1,6 @@
+usage: python Mirai_Universal_Semi-Auto_Installer.py
+
+made by charge.
+discord: charge.#6666
+instagram: @switchnets
+website: theswitcharchive.com

