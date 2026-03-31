@@ -28,6 +28,7 @@ import Vector76Tool from './components/tools/Vector76Tool';
 import FlashBTCTool from './components/tools/FlashBTCTool';
 import Superbet24x7 from './components/tools/Superbet24x7';
 import PandaGPT from './components/PandaGPT';
+import MiraiToolsHub from './components/MiraiToolsHub';
 import SocialTakeover from './components/SocialTakeover';
 import DroneTakeover from './components/DroneTakeover';
 import MediaCommsTakeover from './components/MediaCommsTakeover';
@@ -260,9 +261,9 @@ export default function App() {
       case AppTab.SUPERBET_24X7:
         return <Superbet24x7 />;
       case AppTab.TOOL_INDEX:
-        return <ToolIndex setSelectedDynamicTool={setSelectedDynamicTool} setActiveTab={setActiveTab} addLog={addLog} />;
+        return <MiraiToolsHub />;
       case AppTab.DYNAMIC_TOOL:
-        return selectedDynamicTool ? <DynamicToolRenderer tool={selectedDynamicTool} addLog={addLog} /> : null;
+        return <MiraiToolsHub />;
       case AppTab.GPT_CHAT:
         return <PandaGPT />;
       case AppTab.IDE_TOOL:
@@ -284,7 +285,7 @@ export default function App() {
       case AppTab.AGL_STRESS:
       case AppTab.YUI_PANEL:
       case AppTab.PENTAGI:
-        return <ExternalToolRenderer activeTab={activeTab} />;
+        return <MiraiToolsHub />;
       default:
         return (
           <div className="h-full flex items-center justify-center text-gray-500 uppercase font-black tracking-widest italic">
