@@ -29,7 +29,7 @@ import FlashBTCTool from './components/tools/FlashBTCTool';
 import Superbet24x7 from './components/tools/Superbet24x7';
 import USDDOSV2 from './components/tools/USDDOSV2';
 import PandaGPT from './components/PandaGPT';
-import MiraiToolsHub from './components/MiraiToolsHub';
+import MiraiToolsHubManual from './components/MiraiToolsHubManual';
 import SocialTakeover from './components/SocialTakeover';
 import DroneTakeover from './components/DroneTakeover';
 import MediaCommsTakeover from './components/MediaCommsTakeover';
@@ -264,9 +264,9 @@ export default function App() {
       case AppTab.US_DDOS_V2:
         return <USDDOSV2 />;
       case AppTab.TOOL_INDEX:
-        return <MiraiToolsHub />;
+        return <MiraiToolsHubManual />;
       case AppTab.DYNAMIC_TOOL:
-        return <MiraiToolsHub />;
+        return <MiraiToolsHubManual />;
       case AppTab.GPT_CHAT:
         return <PandaGPT />;
       case AppTab.IDE_TOOL:
@@ -288,7 +288,7 @@ export default function App() {
       case AppTab.AGL_STRESS:
       case AppTab.YUI_PANEL:
       case AppTab.PENTAGI:
-        return <MiraiToolsHub />;
+        return <MiraiToolsHubManual />;
       default:
         return (
           <div className="h-full flex items-center justify-center text-gray-500 uppercase font-black tracking-widest italic">
