@@ -67,7 +67,12 @@ const Sidebar: React.FC<SidebarProps> = ({
 
   const handleToolClick = (tool: DynamicTool) => {
     setSelectedDynamicTool(tool);
-    setActiveTab(AppTab.DYNAMIC_TOOL);
+    // Special routing for PandaGPT Control to open IDE instead of MiraiToolsHub
+    if (tool.id === 'ai-master-control') {
+      setActiveTab(AppTab.GPT_CHAT);
+    } else {
+      setActiveTab(AppTab.DYNAMIC_TOOL);
+    }
   };
 
   return (
