@@ -71,7 +71,7 @@ const Sidebar: React.FC<SidebarProps> = ({
     if (tool.id === 'ai-master-control') {
       setActiveTab(AppTab.GPT_CHAT);
     } else {
-      setActiveTab(AppTab.DYNAMIC_TOOL);
+      if (tool.id === "ai-master-control") { setActiveTab(AppTab.GPT_CHAT); } else { setActiveTab(AppTab.DYNAMIC_TOOL); }
     }
   };
 
@@ -79,10 +79,17 @@ const Sidebar: React.FC<SidebarProps> = ({
     <aside className="w-16 md:w-64 bg-[#050505] border-r border-emerald-500/10 flex flex-col h-screen fixed left-0 top-0 z-50 shadow-2xl transition-all overflow-hidden">
       {/* Sidebar Header */}
       <div className="p-3 flex items-center justify-center md:justify-start gap-2 border-b border-white/5 mb-2 shrink-0 bg-black/40 backdrop-blur-md">
-        <div className={`w-8 h-8 rounded flex items-center justify-center shadow-xl ring-1 transition-all ${isAttacking ? 'bg-fuchsia-600 ring-fuchsia-400 animate-pulse' : 'bg-emerald-500 ring-emerald-400/50'}`}>
-          <i className={`fas ${isAttacking ? 'fa-bolt-lightning' : 'fa-skull'} text-black text-sm`}></i>
-        </div>
-        <div className="hidden md:block flex flex-col">
+       <div className={`w-10 h-10 rounded-xl flex items-center justify-center shadow-2xl ring-1 transition-all overflow-hidden border ${isAttacking ? 'bg-fuchsia-600 ring-fuchsia-400 animate-pulse border-fuchsia-400' : 'bg-black ring-emerald-400/50 border-emerald-500/30'}`}>
+          <img 
+            src="https://raw.githubusercontent.com/kimikukiu/whm-pv/main/public/logo.png" 
+            alt="WHOAMISEC PRO" 
+            className="w-full h-full object-cover"
+            onError={(e) => {
+              const target = e.target as HTMLImageElement;
+              target.src = "https://img.icons8.com/ios-filled/100/2ecc71/security-shield.png";
+            }}
+          />
+        </div>    <div className="hidden md:block flex flex-col">
           <span className="font-black text-[10px] tracking-tighter text-white uppercase italic leading-none">WHOAMISec</span>
           <span className={`text-[7px] font-black uppercase tracking-widest ${isAttacking ? 'text-fuchsia-500' : 'text-emerald-500'}`}>PRO_ARMY_V5.0</span>
         </div>

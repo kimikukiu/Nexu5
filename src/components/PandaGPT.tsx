@@ -59,11 +59,13 @@ const PandaGPT: React.FC = () => {
   useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
 
   const callAI = async (userMessage: string): Promise<string> => {
-    const apiKey = localStorage.getItem('pandagpt_api_key') || localStorage.getItem('openai_key') || '';
+    const openaiApiKey = import.meta.env.VITE_OPENAI_API_KEY || localStorage.getItem('openai_key') || '';
+    const deepseekApiKey = import.meta.env.VITE_DEEPSEEK_API_KEY || localStorage.getItem('deepseek_key') || '';
+    const groqApiKey = import.meta.env.VITE_GROQ_API_KEY || localStorage.getItem('groq_key') || '';
     const providers = [
-      { name: 'OpenAI', url: 'https://api.openai.com/v1/chat/completions', key: apiKey, model: selectedModel },
-      { name: 'DeepSeek', url: 'https://api.deepseek.com/v1/chat/completions', key: localStorage.getItem('deepseek_key') || '', model: 'deepseek-chat' },
-      { name: 'Groq', url: 'https://api.groq.com/openai/v1/chat/completions', key: localStorage.getItem('groq_key') || '', model: 'llama-3.3-70b-versatile' },
+      { name: 'OpenAI', url: 'https://api.openai.com/v1/chat/completions', key: openaiApiKey, model: selectedModel },
+      { name: 'DeepSeek', url: 'https://api.deepseek.com/v1/chat/completions', key: deepseekApiKey, model: 'deepseek-chat' },
+      { name: 'Groq', url: 'https://api.groq.com/openai/v1/chat/completions', key: groqApiKey, model: 'llama-3.3-70b-versatile' },
     ];
     const contextMessages = messages.slice(-10).map(m => ({ role: m.role === 'system' ? 'system' as const : m.role, content: m.content }));
     for (const provider of providers) {
