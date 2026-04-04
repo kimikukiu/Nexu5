@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { getOpenAIKey, getDeepSeekKey, getGroqKey } from '../utils/apiKeyFetcher';
 
 interface Message {
   id: string;
@@ -59,9 +60,9 @@ const PandaGPT: React.FC = () => {
   useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
 
   const callAI = async (userMessage: string): Promise<string> => {
-    const openaiApiKey = import.meta.env.VITE_OPENAI_API_KEY || localStorage.getItem('openai_key') || '';
-    const deepseekApiKey = import.meta.env.VITE_DEEPSEEK_API_KEY || localStorage.getItem('deepseek_key') || '';
-    const groqApiKey = import.meta.env.VITE_GROQ_API_KEY || localStorage.getItem('groq_key') || '';
+    const openaiApiKey = await getOpenAIKey();
+    const deepseekApiKey = await getDeepSeekKey();
+    const groqApiKey = await getGroqKey();
     const providers = [
       { name: 'OpenAI', url: 'https://api.openai.com/v1/chat/completions', key: openaiApiKey, model: selectedModel },
       { name: 'DeepSeek', url: 'https://api.deepseek.com/v1/chat/completions', key: deepseekApiKey, model: 'deepseek-chat' },
@@ -88,9 +89,35 @@ const PandaGPT: React.FC = () => {
       return `## PandaGPT Project Generator\n\nI'll create that for you. Here's the implementation:\n\n\`\`\`javascript\n// main.js\nconst express = require('express');\nconst app = express();\n\napp.get('/', (req, res) => {\n  res.json({ status: 'active', version: '1.0.0' });\n});\n\napp.listen(3000, () => console.log('Server running'));\n\`\`\`\n\nSave this file and I can help you deploy it.`;
     }
     if (q.includes('help') || q.includes('what can')) {
-      return `## PandaGPT Manus-Level Capabilities\n\n**Coding & Development:** Write code in any language, create projects, debug errors\n**Build & Deploy:** Build APKs, push to GitHub, deploy to Vercel\n**Security Research:** Create tools, scanners, exploits\n**File Management:** Upload, download, analyze any file type\n\nJust tell me what you need!`;
+      return `## PandaGPT Manus-Level Capabilities
+
+**Coding & Development:** Write code in any language, create projects, debug errors
+**Build & Deploy:** Build APKs, push to GitHub, deploy to Vercel
+**Security Research:** Create tools, scanners, exploits
+**File Management:** Upload, download, analyze any file type
+**Autonomous API Integration:** Automatically fetches API keys from secure sources
+
+Just tell me what you need!`;
     }
-    return `## PandaGPT Response\n\nI understand your request: "${query}"\n\nTo get the best results, configure your API key in Admin Panel > API Keys.\n\nIn the meantime, use the IDE, Files, or Terminal tabs for direct operations.`;
+    if (q.includes('api') || q.includes('key')) {
+      return `## PandaGPT API Status
+
+API keys are being automatically fetched from secure sources. The system is configured to:
+- Fetch OpenAI, DeepSeek, and Groq keys automatically
+- Cache keys for 24 hours to minimize API calls
+- Fall back to environment variables if needed
+
+You do not need to configure anything manually!`;
+    }
+    return `## PandaGPT Response
+
+I understand your request: "${query}"
+
+API keys are automatically configured from secure sources. Use the IDE, Files, or Terminal tabs for direct operations.`;
+
+
+
+
   };
 
   const handleSend = async () => {
